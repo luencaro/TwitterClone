@@ -9,6 +9,7 @@ class Post(models.Model):
     post_content = models.TextField()
     post_date = models.DateTimeField(default=timezone.now)
     username = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
 
     class Meta:
         ordering = ['-post_date']
@@ -18,6 +19,10 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.post_id})
+
+    @property
+    def number_of_likes(self):
+        return self.likes.count()
 
 
 class Type(models.Model):

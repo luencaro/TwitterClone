@@ -1,30 +1,18 @@
 {% extends "blog/base.html" %}
 {% block content %}
-<style>
-    .auth-card, .auth-card *, .auth-card label, .auth-card p, .auth-card div, .auth-card span {
-        color: #000000 !important;
-    }
-    .auth-card input {
-        color: #000000 !important;
-        background-color: #ffffff !important;
-    }
-    .auth-card button {
-        color: #ffffff !important;
-    }
-</style>
-<div class="container py-4 d-flex justify-content-center">
-    <form method="POST" class="card card-body auth-card col-12 col-md-6" style="color: #000000 !important;">
-        {% csrf_token %}
-        <fieldset class="form-group" style="color: #000000 !important;">
-            <legend class="mb-3" style="color: #000000 !important;">Crear nueva cuenta</legend>
-            <div style="color: #000000 !important;">{{ form.as_p }}</div>
-        </fieldset>
-        <button class="btn btn-primary" type="submit">Registrarse</button>
-    </form>
-    <div class="pt-3 text-center">
-        <small class="auth-extra" style="color: #000000 !important;">
-            ¿Ya tienes cuenta? <a class="ml-2" href="{% url 'login' %}">Inicia sesión</a>
-        </small>
+<div class="auth-page container">
+    <div class="auth-shell">
+        <form method="POST" class="auth-card">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend>Crear nueva cuenta</legend>
+                {{ form.as_p }}
+            </fieldset>
+            <button class="btn btn-primary" type="submit">Registrarse</button>
+        </form>
+        <p class="auth-meta">
+            ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>
+        </p>
     </div>
 </div>
 {% endblock content %}

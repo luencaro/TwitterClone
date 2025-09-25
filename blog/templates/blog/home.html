@@ -7,19 +7,8 @@
         <a class="btn btn-primary" href="{% url 'post-create' %}">Nuevo post</a>
     </div>
 
-    {% if types %}
-        <div class="mb-3">
-            <span class="me-2 fw-semibold">Filtrar por etiqueta:</span>
-            <a class="badge bg-light text-dark me-1" href="{% url 'blog-home' %}">Todas</a>
-            {% for type in types %}
-                <a class="badge {% if type.type_name == active_type %}bg-primary{% else %}bg-secondary{% endif %} me-1"
-                   href="?type={{ type.type_name }}">{{ type.type_name }}</a>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    {% if active_type %}
-        <p class="text-muted">Mostrando posts etiquetados como <strong>{{ active_type }}</strong>.</p>
+    {% if search_query %}
+        <h2 class="mb-3">Resultados para: "{{ search_query }}"</h2>
     {% endif %}
 
     {% for post in posts %}
@@ -45,11 +34,19 @@
                 {% if post.post_tags.all %}
                     <div class="mt-3">
                         {% for tag in post.post_tags.all %}
-                            <span class="badge bg-info text-dark me-1">{{ tag.type_id.type_name }}</span>
+                            <a href="{% url 'blog-home' %}?type={{ tag.type_id.type_name }}" class="badge bg-info text-dark me-1">#{{ tag.type_id.type_name }}</a>
                         {% endfor %}
                     </div>
                 {% endif %}
                 <p class="mt-3 mb-0 text-muted">{{ post.comments.count }} comentario(s)</p>
+                <div class="like-container mt-3">
+                    <a href="{% url 'like-post' post.pk %}" class="like-button {% if user in post.likes.all %}liked{% endif %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    </a>
+                    <span class="like-count">{{ post.number_of_likes }}</span>
+                </div>
             </div>
         </article>
     {% empty %}

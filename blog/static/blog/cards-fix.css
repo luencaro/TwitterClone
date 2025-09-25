@@ -1,5 +1,5 @@
 /* Archivo CSS específico para arreglar las tarjetas blancas */
-/* Versión: 2.0 - Botones y campos de texto arreglados */
+/* Versión: 3.0 - Auth cards protegidas, fondo blanco restaurado */
 
 /* FORZAR ESTILOS EN TODAS LAS TARJETAS */
 .card {
@@ -142,21 +142,21 @@
 
 /* ========== ESTILOS PARA FORMULARIOS FUERA DE TARJETAS ========== */
 
-/* Formularios de comentarios y otros que no están en tarjetas */
-form input,
-form textarea,
-form select,
-form .form-control {
+/* Formularios de comentarios y otros que no están en tarjetas - EXCEPTO auth-card */
+form:not(.auth-card) input,
+form:not(.auth-card) textarea,
+form:not(.auth-card) select,
+form:not(.auth-card) .form-control {
     color: #000000 !important;
     background-color: #ffffff !important;
     border: 1px solid #ced4da !important;
     border-radius: 4px !important;
 }
 
-form input:focus,
-form textarea:focus,
-form select:focus,
-form .form-control:focus {
+form:not(.auth-card) input:focus,
+form:not(.auth-card) textarea:focus,
+form:not(.auth-card) select:focus,
+form:not(.auth-card) .form-control:focus {
     color: #000000 !important;
     background-color: #ffffff !important;
     border-color: #1da1f2 !important;
@@ -164,8 +164,8 @@ form .form-control:focus {
     outline: none !important;
 }
 
-/* Labels de formularios */
-form label {
+/* Labels de formularios - EXCEPTO en auth-card */
+form:not(.auth-card) label {
     color: #ffffff !important;
 }
 
@@ -195,4 +195,61 @@ input:focus, textarea:focus {
     color: #000000 !important;
     border-color: #1da1f2 !important;
     box-shadow: 0 0 0 0.2rem rgba(29, 161, 242, 0.25) !important;
+}
+
+/* ========== PROTECCIÓN ESPECÍFICA PARA TARJETAS DE AUTENTICACIÓN ========== */
+
+/* Asegurar que las tarjetas de auth mantengan su fondo blanco */
+.auth-card,
+form.auth-card,
+.card.auth-card {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 0.5rem 1rem rgba(21, 32, 43, 0.25) !important;
+}
+
+.auth-card .card-body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* Todos los elementos dentro de auth-card deben ser negros */
+.auth-card *,
+.auth-card label,
+.auth-card legend,
+.auth-card p,
+.auth-card div,
+.auth-card span,
+.auth-card fieldset {
+    color: #000000 !important;
+}
+
+/* Inputs específicos en auth-card */
+.auth-card input,
+.auth-card textarea,
+.auth-card select,
+.auth-card .form-control {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 6px !important;
+}
+
+.auth-card input:focus,
+.auth-card textarea:focus,
+.auth-card select:focus,
+.auth-card .form-control:focus {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    border-color: #86b7fe !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Botones en auth-card */
+.auth-card .btn-primary {
+    color: #ffffff !important;
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
 }
