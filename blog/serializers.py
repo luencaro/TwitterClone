@@ -17,5 +17,12 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Post 
-        fields = ['content', 'author']
+        model = Post
+        fields = ['post_id', 'post_content', 'post_date', 'username']
+        read_only_fields = ['post_id', 'post_date', 'username']
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            validated_data['username'] = request.user
+        return super().create(validated_data)

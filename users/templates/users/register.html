@@ -1,22 +1,29 @@
 {% extends "blog/base.html" %}
-{% load crispy_forms_tags %}
 {% block content %}
-<div class="container">
-    <form method="POST" class="col-12 col-md-6 pl-3 pr-3 pl-md-0 pr-md-0">
+<style>
+    .auth-card, .auth-card *, .auth-card label, .auth-card p, .auth-card div, .auth-card span {
+        color: #000000 !important;
+    }
+    .auth-card input {
+        color: #000000 !important;
+        background-color: #ffffff !important;
+    }
+    .auth-card button {
+        color: #ffffff !important;
+    }
+</style>
+<div class="container py-4 d-flex justify-content-center">
+    <form method="POST" class="card card-body auth-card col-12 col-md-6" style="color: #000000 !important;">
         {% csrf_token %}
-        <fieldset class="form-group">
-            <legend class="mb-3 white-important">
-                Register a new account
-            </legend>
-            {{ form | crispy }}
+        <fieldset class="form-group" style="color: #000000 !important;">
+            <legend class="mb-3" style="color: #000000 !important;">Crear nueva cuenta</legend>
+            <div style="color: #000000 !important;">{{ form.as_p }}</div>
         </fieldset>
-        <div class="form-group">
-            <button class="btn btn-outline-primary" type="submit">Sign Up</button>
-        </div>
+        <button class="btn btn-primary" type="submit">Registrarse</button>
     </form>
-    <div class="pt-3">
-        <small class="text-muted">
-            Already Have An Account? <a class="ml-2" href="{% url 'login' %}">Sign In</a>
+    <div class="pt-3 text-center">
+        <small class="auth-extra" style="color: #000000 !important;">
+            ¿Ya tienes cuenta? <a class="ml-2" href="{% url 'login' %}">Inicia sesión</a>
         </small>
     </div>
 </div>

@@ -7,21 +7,6 @@
                 Follows
             </h3>
             <div class="row pr-3 pl-3">
-                {% for follow in follows %}
-                    <div class="col-6 col-md-3 pl-0">
-                        <article class="media content-section">
-                            <div>
-                                <img
-                                           class="rounded-circle mr-2"
-                                           style="width: 20px; height: 20px;"
-                                           src="{{ follow.follow_user.profile.image.url }}">
-                               <a class="mr-2 white-important" href="{% url 'user-posts' follow.follow_user.username %}">
-                                   {{ follow.follow_user.username }}
-                               </a>
-                            </div>
-                        </article>
-                    </div>
-                {% endfor %}
             </div>
         </div>
     {% endif %}
@@ -32,23 +17,9 @@
                 Followers
             </h3>
             <div class="row pr-3 pl-3">
-                {% for follow in follows %}
-                    <div class="col-6 col-md-3 pl-0">
-                        <article class="media content-section">
-                            <div>
-                                <img
-                                           class="rounded-circle mr-2"
-                                           style="width: 20px; height: 20px;"
-                                           src="{{ follow.user.profile.image.url }}">
-                               <a class="mr-2 white-important" href="{% url 'user-posts' follow.user.username %}">
-                                   {{ follow.user.username }}
-                               </a>
-                            </div>
-                        </article>
-                    </div>
-                {% endfor %}
             </div>
         </div>
       </div>
     {% endif %}
+    <!-- Vista de seguidores/seguidos eliminada por refactor -->
 {% endblock content %}

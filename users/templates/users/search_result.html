@@ -1,40 +1,29 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Buscar usuarios</h1>
+    <form action="{% url 'search' %}" method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="input-group">
+            <input required name="search" type="text" class="form-control" placeholder="Buscar por nombre de usuario" value="{{ query }}">
+            <button type="submit" class="btn btn-outline-primary">Buscar</button>
+        </div>
+    </form>
 
-	<div class="container">
-		<div class="form-group">
-				<form action="{% url 'search' %}" method="post">{% csrf_token %}
-                <div style="width: 100%" class="search-container">
-                    <div class="search">
-                    <input required name="search" type="text" id="zip-code-input" placeholder="Search Twitter">
-                    <button type="submit" style="border:0; background: transparent;"><i class="fa fa-search"></i> </button> </a>
-                </div>
-                </form>
-            </div>
-                <br>
-		{% if results %}
-			{% for result in results %}
-			<div class="search-result-profile">
-										<div
-                                               style="padding-left: 0px !important;"
-                                               class="col-8 no-padding d-flex align-items-center">
-                                           <img
-                                               class="rounded-circle mr-2"
-                                               style="width: 40px; height: 40px;"
-                                               src="{{ result.profile.image.url }}">
-                                           <a class="mr-2 white-important" href="{% url 'user-posts' result.username %}">
-                                               {{ result.username }}
-                                           </a>
-                                       </div>
-				                    
-				                </div>
-			{% endfor %}
-		{% else %}
-			<div class="alert alert-info" role="alert">
-			  No result, please try to search again!
-			</div>
-		{% endif %}
-	</div>
-
+    {% if results %}
+        <ul class="list-group">
+            {% for result in results %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ result.username }}</span>
+                    <a class="btn btn-sm btn-secondary" href="{% url 'user-posts' result.username %}">Ver posts</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            No se encontraron usuarios. Intenta con otro término.
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

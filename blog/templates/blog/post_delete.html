@@ -1,18 +1,18 @@
 {% extends "blog/base.html" %}
 {% block content %}
-<div class="container">
-    <form method="POST" class="col-6 no-padding">
-        {% csrf_token %}
-        <fieldset class="form-group white-important">
-            Do you really want to delete
-        </fieldset>
-        <p class="bg-steel p-2"
-           style="border: 1px solid white; border-radius: 4px; word-wrap: break-word;">
-           {{ post.content }}
-        </p>
-        <div class="form-group">
-            <button class="btn btn-outline-primary" type="submit">Yes</button>
-        </div>
-    </form>
+<div class="container py-4">
+    <div class="card card-body col-md-6 px-4">
+        <h3 class="mb-3">Eliminar post</h3>
+        <p>¿Seguro que deseas eliminar este post?</p>
+        <blockquote class="blockquote">
+            <p class="mb-0">{{ post.post_content }}</p>
+            <footer class="blockquote-footer text-muted">Publicado el {{ post.post_date|date:"d/m/Y H:i" }}</footer>
+        </blockquote>
+        <form method="POST" class="mt-3">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Sí, eliminar</button>
+            <a class="btn btn-secondary ms-2" href="{% url 'post-detail' post.pk %}">Cancelar</a>
+        </form>
+    </div>
 </div>
 {% endblock content %}

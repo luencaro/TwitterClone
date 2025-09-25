@@ -1,3 +1,4 @@
+/* CSS actualizado - versión 3.0 - Tarjetas arregladas */
 :root {
     --muted-color: rgba(255, 255, 255, 0.5);
 }
@@ -240,5 +241,231 @@ input[type="file"]::-webkit-file-upload-button {
 .email-profile{
   font-size: 13px;
   outline: hidden;
+}
+
+.auth-card {
+  background-color: #ffffff;
+  color: #000000 !important;
+  border-radius: 16px;
+  box-shadow: 0 0.5rem 1rem rgba(21, 32, 43, 0.25);
+}
+
+.auth-card legend,
+.auth-card label,
+.auth-card p,
+.auth-card fieldset,
+.auth-card div,
+.auth-card span {
+  color: #000000 !important;
+}
+
+.auth-card .form-control {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 6px !important;
+}
+
+.auth-card .form-control:focus,
+.auth-card input:focus,
+.auth-card textarea:focus {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #86b7fe !important;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+}
+
+.auth-card .text-muted {
+  color: #6c757d !important;
+}
+
+.auth-card .btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.auth-card .btn-primary:hover,
+.auth-card .btn-primary:focus {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.auth-extra {
+  color: #000000;
+}
+
+.auth-extra a {
+  color: #0d6efd;
+}
+
+.auth-extra a:hover {
+  color: #0a58ca;
+}
+
+/* ======= ESTILOS DE AUTENTICACIÓN - FORZAR TEXTO NEGRO ======= */
+.auth-card,
+.auth-card *,
+.auth-card label,
+.auth-card legend,
+.auth-card p,
+.auth-card div,
+.auth-card span,
+.auth-card fieldset {
+  color: #000000 !important;
+}
+
+.auth-card input,
+.auth-card select,
+.auth-card textarea {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+}
+
+.auth-card .form-text,
+.auth-card .help-text,
+.auth-card .errorlist,
+.auth-card .helptext {
+  color: #000000 !important;
+}
+
+/* Sobrescribir cualquier estilo del formulario Django */
+.auth-card form,
+.auth-card form *,
+.auth-card fieldset,
+.auth-card fieldset * {
+  color: #000000 !important;
+}
+
+/* Solo el botón debe mantener texto blanco */
+.auth-card .btn-primary,
+.auth-card button {
+  color: #ffffff !important;
+  background-color: #0d6efd !important;
+}
+
+/* Texto fuera de la tarjeta también en negro para los enlaces */
+.auth-extra,
+.auth-extra * {
+  color: #000000 !important;
+}
+
+/* Asegurar que el contenedor de la página de autenticación tenga el fondo correcto */
+.container .auth-card {
+  background-color: #ffffff !important;
+}
+
+/* Forzar color negro en elementos específicos de Django forms */
+.auth-card .form-group,
+.auth-card .form-group *,
+.auth-card .form-control,
+.auth-card .col-form-label {
+  color: #000000 !important;
+}
+
+/* ======= ESTILOS GLOBALES PARA TODAS LAS TARJETAS BLANCAS ======= */
+
+/* Estilos base para todas las tarjetas */
+.card,
+.card-body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Texto dentro de todas las tarjetas debe ser negro */
+.card *,
+.card-body *,
+.card h1, .card h2, .card h3, .card h4, .card h5, .card h6,
+.card p, .card div, .card span, .card label, .card legend,
+.card fieldset, .card .form-group, .card .form-control {
+  color: #000000 !important;
+}
+
+/* Inputs y textareas dentro de tarjetas */
+.card input,
+.card textarea,
+.card select,
+.card .form-control {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #ced4da !important;
+}
+
+/* Focus states para inputs en tarjetas */
+.card input:focus,
+.card textarea:focus,
+.card select:focus,
+.card .form-control:focus {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  border-color: #86b7fe !important;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Enlaces dentro de tarjetas */
+.card a {
+  color: #0d6efd !important;
+}
+
+.card a:hover {
+  color: #0a58ca !important;
+}
+
+/* Botones dentro de tarjetas mantienen sus colores originales */
+.card .btn-primary {
+  color: #ffffff !important;
+  background-color: #0d6efd !important;
+}
+
+.card .btn-secondary {
+  color: #ffffff !important;
+  background-color: #6c757d !important;
+}
+
+.card .btn-outline-secondary {
+  color: #6c757d !important;
+  border-color: #6c757d !important;
+}
+
+.card .btn-outline-danger {
+  color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+/* Badges y elementos específicos */
+.card .badge {
+  color: #ffffff !important;
+}
+
+.card .text-muted {
+  color: #6c757d !important;
+}
+
+/* ======= ESTILOS ULTRA ESPECÍFICOS PARA LOGIN/REGISTER ======= */
+body .container form.auth-card,
+body .container form.auth-card *,
+body .container form.auth-card label,
+body .container form.auth-card legend,
+body .container form.auth-card p,
+body .container form.auth-card div,
+body .container form.auth-card span,
+body .container form.auth-card fieldset,
+body .container form.auth-card .form-group,
+body .container form.auth-card .form-group label,
+body .container form.auth-card .form-control {
+  color: #000000 !important;
+  background-color: transparent !important;
+}
+
+body .container form.auth-card input[type="text"],
+body .container form.auth-card input[type="password"],
+body .container form.auth-card input[type="email"] {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+}
+
+/* Asegurar que el botón mantenga su color */
+body .container form.auth-card button,
+body .container form.auth-card .btn {
+  color: #ffffff !important;
 }
 
