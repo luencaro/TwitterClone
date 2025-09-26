@@ -1,5 +1,3 @@
-Here's a simple README for your repository, based on the provided document:
-
 ---
 
 # Bases de Datos - Laboratorio 03: Aplicación de Gestión de Posts y Comentarios
@@ -31,6 +29,10 @@ La aplicación ofrece un menú interactivo con las siguientes funcionalidades pr
 *   **Búsqueda de Posts:** Buscar posts por tipo, tema, autor y palabras clave.
 *   **Visualización de Posts Completos:** Ver el contenido completo de un post y todos sus comentarios asociados.
 *   **Listado de Usuarios y Cantidad de Posts:** Un listado que muestra cada usuario y el número total de posts que ha publicado.
+
+
+
+
 
 ### Restricciones Implementadas
 
