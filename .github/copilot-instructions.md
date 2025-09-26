@@ -1,9 +1,0 @@
-- [ ] Verificar que el archivo copilot-instructions.md en el directorio .github está creado.
-- [ ] Aclarar requisitos del proyecto
-- [ ] Generar el proyecto Django y la app principal
-- [ ] Personalizar el proyecto según requisitos
-- [ ] Instalar extensiones necesarias (si aplica)
-- [ ] Compilar el proyecto
-- [ ] Crear y ejecutar tarea (si aplica)
-- [ ] Lanzar el proyecto
-- [ ] Verificar documentación completa
