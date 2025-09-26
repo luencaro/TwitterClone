@@ -958,6 +958,10 @@ input[type="radio"] {
     gap: 0.5rem;
 }
 
+.like-form {
+    margin: 0;
+}
+
 .like-button {
     display: inline-flex;
     align-items: center;
@@ -965,6 +969,9 @@ input[type="radio"] {
     padding: 0.35rem;
     border-radius: 50%;
     color: var(--color-text-tertiary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
     transition: color var(--transition-base), background-color var(--transition-base), transform var(--transition-base);
 }
 

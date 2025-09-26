@@ -7,6 +7,7 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.views.decorators.http import require_POST
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view
 import re
@@ -110,12 +111,19 @@ class PostListView(LoginRequiredMixin, ListView):
 
 
 @login_required
+@require_POST
 def like_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.user in post.likes.all():
         post.likes.remove(request.user)
+        liked = False
     else:
         post.likes.add(request.user)
+        liked = True
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'liked': liked, 'likes': post.number_of_likes})
+
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('blog-home')))
 
 
