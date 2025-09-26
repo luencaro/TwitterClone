@@ -43,10 +43,18 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         <p class="mb-2">{{ comment.comment_content }}</p>
-                        <small class="text-muted">
-                            por <a href="{% url 'user-posts' comment.username.username %}">{{ comment.username.username }}</a>
-                            · {{ comment.comment_date|date:"d/m/Y H:i" }}
-                        </small>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                por <a href="{% url 'user-posts' comment.username.username %}">{{ comment.username.username }}</a>
+                                · {{ comment.comment_date|date:"d/m/Y H:i" }}
+                            </small>
+                            {% if comment.username == user %}
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Acciones del comentario">
+                                    <a class="btn btn-outline-secondary" href="{% url 'comment-update' comment.pk %}">Editar</a>
+                                    <a class="btn btn-outline-danger" href="{% url 'comment-delete' comment.pk %}">Eliminar</a>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             {% empty %}

@@ -1,0 +1,15 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">Eliminar comentario</h2>
+    <div class="card card-body">
+        <p>¿Seguro que quieres eliminar este comentario?</p>
+        <p class="text-muted mb-4">"{{ object.comment_content }}"</p>
+        <form method="POST" class="d-flex justify-content-end gap-2">
+            {% csrf_token %}
+            <a class="btn btn-outline-secondary" href="{% url 'post-detail' object.post_id.pk %}">Cancelar</a>
+            <button class="btn btn-danger" type="submit">Eliminar</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

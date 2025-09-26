@@ -6,6 +6,8 @@ from .views import (
     PostUpdateView,
     PostDeleteView,
     UserPostListView,
+    CommentUpdateView,
+    CommentDeleteView,
     post_list)
 from . import views
 from django.urls import include
@@ -25,6 +27,8 @@ urlpatterns = [
     path('user/<str:username>', UserPostListView.as_view(), name='user-posts'),
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/del/', PostDeleteView.as_view(), name='post-delete'),
+    path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment-update'),
+    path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment-delete'),
     path('l/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/posts', post_list)

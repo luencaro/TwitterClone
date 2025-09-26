@@ -209,6 +209,31 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return post.username == self.request.user
 
 
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    form_class = NewCommentForm
+    template_name = 'blog/comment_form.html'
+
+    def get_success_url(self):
+        return reverse('post-detail', kwargs={'pk': self.object.post_id.pk})
+
+    def test_func(self):
+        comment = self.get_object()
+        return comment.username == self.request.user
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse('post-detail', kwargs={'pk': self.object.post_id.pk})
+
+    def test_func(self):
+        comment = self.get_object()
+        return comment.username == self.request.user
+
+
 def about(request):
     return render(request, 'blog/about.html')
 
