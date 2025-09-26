@@ -1,0 +1,15 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">Eliminar cuenta</h2>
+    <div class="card card-body">
+        <p>Esta acción eliminará tu cuenta y todos tus datos asociados.</p>
+        <p class="text-danger">¿Estás seguro de que quieres continuar?</p>
+        <form method="POST" class="d-flex justify-content-end gap-2 mt-3">
+            {% csrf_token %}
+            <a class="btn btn-outline-secondary" href="{% url 'account-edit' %}">Cancelar</a>
+            <button class="btn btn-danger" type="submit">Eliminar definitivamente</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

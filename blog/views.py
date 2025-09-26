@@ -53,12 +53,13 @@ class PostListView(LoginRequiredMixin, ListView):
         )
         
         raw_type = (self.request.GET.get('type') or '').strip()
-        raw_query = (self.request.GET.get('q') or '').strip()
+        raw_query_input = (self.request.GET.get('q') or '').strip()
+        raw_query = raw_query_input.lstrip('#') if raw_query_input else ''
 
         self.active_type = None
-        self.search_query = raw_query
+        self.search_query = raw_query_input or raw_query
         self.requested_type = raw_type
-        self.search_value = raw_type or raw_query
+        self.search_value = raw_query_input or raw_query
 
         def _filter_by_type(name):
             type_obj = Type.objects.filter(type_name__iexact=name).first()
@@ -70,14 +71,14 @@ class PostListView(LoginRequiredMixin, ListView):
         if raw_type:
             queryset = _filter_by_type(raw_type)
             if self.active_type:
-                self.search_value = self.active_type
+                self.search_value = f"#{self.active_type}"
         elif raw_query:
             # Si la búsqueda coincide con un hashtag, filtramos por hashtag
             type_obj = Type.objects.filter(type_name__iexact=raw_query).first()
             if type_obj:
                 self.active_type = type_obj.type_name
                 queryset = queryset.filter(post_tags__type_id=type_obj)
-                self.search_value = self.active_type
+                self.search_value = f"#{self.active_type}"
             else:
                 # Búsqueda general
                 queryset = queryset.filter(

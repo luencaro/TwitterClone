@@ -370,34 +370,100 @@ article.card:hover {
     padding: 0.85rem 1.6rem;
 }
 
-@media (min-width: 992px) {
-    .home-container {
-        display: grid !important;
-        grid-template-columns: 4fr 1fr;
-        column-gap: 2.5rem;
-        align-items: start;
-    }
+/* Layout específico de la home */
+.home-shell {
+    width: min(80vw, 1100px);
+    margin: 0 auto;
+}
 
-    .home-container > .col-lg-8,
-    .home-container > .col-xl-8 {
-        grid-column: 1;
-        width: 100%;
-        max-width: none;
+@media (max-width: 991.98px) {
+    .home-shell {
+        width: min(92vw, 100%);
     }
+}
 
-    .home-container > .search-sidebar {
-        grid-column: 2;
-        margin-left: 0 !important;
-        padding-left: 0 !important;
-        width: 100%;
-        max-width: none;
-        align-self: start;
-    }
+.home-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
 
-    .search-sidebar .search-card {
-        margin: 0;
-        width: 130%;
-    }
+.home-heading p {
+    max-width: 640px;
+}
+
+.home-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.home-search {
+    flex: 1 1 260px;
+    max-width: 360px;
+}
+
+
+.home-search-group {
+    display: flex;
+    align-items: center;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    box-shadow: none;
+    transition: border-color var(--transition-base), background-color var(--transition-base);
+}
+
+.home-search-group:focus-within {
+    border-color: var(--color-brand);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.home-search-group .form-control {
+    border: none;
+    background: transparent;
+    padding: 0.65rem 1.1rem;
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+}
+
+.home-search-group .form-control::placeholder {
+    color: rgba(71, 85, 105, 0.65);
+}
+
+.home-search-group .form-control:focus {
+    box-shadow: none;
+}
+
+.home-search-group .btn {
+    border-radius: 999px;
+    margin-right: 0.4rem;
+    padding: 0.55rem 1.25rem;
+    background: transparent;
+    color: var(--color-brand);
+    border: 1px solid transparent;
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.home-search-group .btn:hover,
+.home-search-group .btn:focus {
+    background: var(--color-brand-soft);
+    border-color: transparent;
+    color: var(--color-brand-hover);
+}
+
+.home-new-post {
+    white-space: nowrap;
+}
+
+.home-action-mobile .btn {
+    border-radius: 999px;
 }
 
 /* =========================================================
