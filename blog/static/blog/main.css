@@ -104,8 +104,8 @@ ol {
 /* =========================================================
    2. Contenedores y layout
    ========================================================= */
-.container,
-.container-fluid {
+
+.container {
     max-width: var(--max-content-width);
     padding-left: var(--container-padding-x);
     padding-right: var(--container-padding-x);
@@ -113,6 +113,8 @@ ol {
 
 .container-fluid {
     width: 100%;
+    padding-left: var(--container-padding-x);
+    padding-right: var(--container-padding-x);
 }
 
 .container > :first-child {
@@ -348,6 +350,54 @@ article.card:hover {
 .badge.bg-light {
     background: var(--color-surface-muted) !important;
     color: var(--color-text-secondary) !important;
+}
+
+.search-card {
+    width: min(100%, 23rem);
+    margin: 0 auto;
+    border-radius: 28px;
+}
+
+.search-card .card-title {
+    font-size: 1.2rem;
+}
+
+.search-card .input-group-lg .form-control {
+    padding: 0.85rem 1.15rem;
+}
+
+.search-card .btn-lg {
+    padding: 0.85rem 1.6rem;
+}
+
+@media (min-width: 992px) {
+    .home-container {
+        display: grid !important;
+        grid-template-columns: 4fr 1fr;
+        column-gap: 2.5rem;
+        align-items: start;
+    }
+
+    .home-container > .col-lg-8,
+    .home-container > .col-xl-8 {
+        grid-column: 1;
+        width: 100%;
+        max-width: none;
+    }
+
+    .home-container > .search-sidebar {
+        grid-column: 2;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+        width: 100%;
+        max-width: none;
+        align-self: start;
+    }
+
+    .search-sidebar .search-card {
+        margin: 0;
+        width: 130%;
+    }
 }
 
 /* =========================================================

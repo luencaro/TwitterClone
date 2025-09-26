@@ -10,6 +10,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view
 import re
+from urllib.parse import urlencode
 
 from .forms import NewCommentForm
 from .models import Comment, Post, Type, PostTag
@@ -51,20 +52,58 @@ class PostListView(LoginRequiredMixin, ListView):
             )
         )
         
-        query = self.request.GET.get('q')
-        if query:
-            # Buscamos en el contenido del post, en el nombre de usuario y en los hashtags
-            queryset = queryset.filter(
-                models.Q(post_content__icontains=query) |
-                models.Q(username__username__icontains=query) |
-                models.Q(post_tags__type_id__type_name__icontains=query)
-            )
-            
+        raw_type = (self.request.GET.get('type') or '').strip()
+        raw_query = (self.request.GET.get('q') or '').strip()
+
+        self.active_type = None
+        self.search_query = raw_query
+        self.requested_type = raw_type
+        self.search_value = raw_type or raw_query
+
+        def _filter_by_type(name):
+            type_obj = Type.objects.filter(type_name__iexact=name).first()
+            if not type_obj:
+                return queryset.none()
+            self.active_type = type_obj.type_name
+            return queryset.filter(post_tags__type_id=type_obj)
+
+        if raw_type:
+            queryset = _filter_by_type(raw_type)
+            if self.active_type:
+                self.search_value = self.active_type
+        elif raw_query:
+            # Si la búsqueda coincide con un hashtag, filtramos por hashtag
+            type_obj = Type.objects.filter(type_name__iexact=raw_query).first()
+            if type_obj:
+                self.active_type = type_obj.type_name
+                queryset = queryset.filter(post_tags__type_id=type_obj)
+                self.search_value = self.active_type
+            else:
+                # Búsqueda general
+                queryset = queryset.filter(
+                    models.Q(post_content__icontains=raw_query) |
+                    models.Q(username__username__icontains=raw_query) |
+                    models.Q(post_tags__type_id__type_name__icontains=raw_query)
+                )
+        
+        self.current_querystring = ''
+        params = {}
+        if self.requested_type:
+            params['type'] = self.requested_type
+        elif self.active_type:
+            params['type'] = self.active_type
+        elif self.search_query:
+            params['q'] = self.search_query
+        if params:
+            self.current_querystring = urlencode(params)
+
         return queryset.order_by('-post_date').distinct()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['search_query'] = self.request.GET.get('q', '')
+        context['search_query'] = getattr(self, 'search_value', '')
+        context['active_type'] = getattr(self, 'active_type', '')
+        context['current_querystring'] = getattr(self, 'current_querystring', '')
         context['comment_form'] = NewCommentForm()
         return context
 

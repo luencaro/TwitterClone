@@ -1,8 +1,8 @@
-# Plan de Refactorización: Simplificación de Clon de Twitter a un Blog Básico
+# Simplificación de Clon de Twitter a un Blog Básico
 
 ## 1. Objetivo Principal
 
-Actúa como un arquitecto de software senior, ayudame a crear la funcion de hashtags. 
+Actúa como un arquitecto de software senior. 
 
 La **única fuente de verdad** para la nueva estructura de la base de datos y las funcionalidades permitidas es el siguiente modelo relacional.
 
@@ -50,7 +50,7 @@ erDiagram
     type }o--|| post_tag : "etiqueta a"
 ```
 
-## 3. Análisis del Modelo y Alcance del Proyecto
+## 3. Análisis del Modelo
 
 Basado en el diagrama anterior, las únicas funcionalidades principales que deben permanecer son:
 
@@ -60,4 +60,4 @@ Basado en el diagrama anterior, las únicas funcionalidades principales que debe
 *   **Types**: Los posts se pueden asociar con uno o más "hashtags", estos se van a encontrar en el mismo textfield del post y debes extraerlo de ahi en base al "#".
 
 ## 4. Tareas Solicitadas
-Necesito que crees la funcionalidad de los hashtags, que se puedan filtrar y todo lo normal de ellos.
+Deja solo las tablas necesarias para el schema y para el proyecto.
