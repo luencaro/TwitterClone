@@ -263,6 +263,32 @@ article.card:hover {
     margin-top: 0.5rem;
 }
 
+.post-card {
+    cursor: pointer !important;
+    position: relative;
+}
+
+.post-card *:not(textarea):not(input):not(select) {
+    cursor: pointer !important;
+}
+
+.post-card:focus,
+.post-card:focus-visible,
+.post-card:focus-within {
+    outline: none;
+    box-shadow: var(--shadow-md);
+    border-left-color: var(--color-brand);
+}
+
+.post-card .post-card-title-link {
+    color: inherit;
+}
+
+.post-card .post-card-title-link:hover,
+.post-card .post-card-title-link:focus {
+    color: var(--color-brand);
+}
+
 /* =========================================================
    6. Botones y enlaces de acción
    ========================================================= */

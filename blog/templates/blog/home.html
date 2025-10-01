@@ -31,12 +31,12 @@
     </div>
 
     {% for post in posts %}
-        <article class="card mb-4">
+        <article class="card post-card js-post-card mb-4" data-href="{% url 'post-detail' post.pk %}" role="link" tabindex="0">
             <div class="card-body">
                 <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
                     <div>
                         <h5 class="card-title mb-1">
-                            <a href="{% url 'post-detail' post.pk %}">{{ post.post_content|truncatechars:140 }}</a>
+                            <a class="post-card-title-link" href="{% url 'post-detail' post.pk %}">{{ post.post_content|truncatechars:140 }}</a>
                         </h5>
                         <small class="text-muted">
                             por <a href="{% url 'user-posts' post.username.username %}">{{ post.username.username }}</a>
