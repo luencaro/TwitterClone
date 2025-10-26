@@ -52,10 +52,19 @@
                     </div>
                 </div>
                 {% if post.username != user %}
-                    <button class="btn btn-sm btn-outline-primary rounded-pill btn-follow-post" 
-                            data-user-id="{{ post.username.id }}">
+                    {% if post.username.id in following_user_ids %}
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill btn-following" 
+                            data-user-id="{{ post.username.id }}"
+                            onclick="unfollowUser({{ post.username.id }}, this); event.stopPropagation();">
+                        Siguiendo
+                    </button>
+                    {% else %}
+                    <button class="btn btn-sm btn-outline-primary rounded-pill btn-follow" 
+                            data-user-id="{{ post.username.id }}"
+                            onclick="followUser({{ post.username.id }}, this); event.stopPropagation();">
                         Seguir
                     </button>
+                    {% endif %}
                 {% endif %}
             </div>
             

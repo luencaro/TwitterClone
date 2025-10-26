@@ -43,15 +43,6 @@ function setupPostEventListeners() {
         });
     });
     
-    // Click en botón de seguir en posts
-    document.querySelectorAll('.btn-follow-post').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const userId = this.dataset.userId;
-            followUser(userId, this);
-        });
-    });
-    
     // Prevenir propagación en forms de like
     document.querySelectorAll('.like-form').forEach(form => {
         form.addEventListener('click', function(e) {
@@ -140,46 +131,82 @@ function loadInfluencers() {
 }
 
 function followUser(userId, button) {
-    fetch(`/follow/${userId}/`, {
+    fetch(`/api/follow/${userId}/`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             button.textContent = 'Siguiendo';
             button.classList.remove('btn-follow');
+            button.classList.remove('btn-outline-primary');
             button.classList.add('btn-following');
-            button.onclick = () => unfollowUser(userId, button);
+            button.classList.add('btn-outline-secondary');
+            button.onclick = (e) => {
+                e.stopPropagation();
+                unfollowUser(userId, button);
+            };
+            
+            // Recargar sugerencias de amigos
+            loadFriendSuggestions();
+        } else {
+            const errorMsg = data.error || 'No se pudo seguir al usuario';
+            console.error('Error en follow:', errorMsg);
+            alert(`No se pudo seguir al usuario: ${errorMsg}`);
         }
     })
     .catch(error => {
         console.error('Error siguiendo usuario:', error);
+        alert(`Error al seguir usuario: ${error.message}`);
     });
 }
 
 function unfollowUser(userId, button) {
-    fetch(`/unfollow/${userId}/`, {
+    fetch(`/api/unfollow/${userId}/`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             button.textContent = 'Seguir';
             button.classList.remove('btn-following');
+            button.classList.remove('btn-outline-secondary');
             button.classList.add('btn-follow');
-            button.onclick = () => followUser(userId, button);
+            button.classList.add('btn-outline-primary');
+            button.onclick = (e) => {
+                e.stopPropagation();
+                followUser(userId, button);
+            };
+            
+            // Recargar sugerencias de amigos
+            loadFriendSuggestions();
+        } else {
+            const errorMsg = data.error || 'No se pudo dejar de seguir al usuario';
+            console.error('Error en unfollow:', errorMsg);
+            alert(`No se pudo dejar de seguir: ${errorMsg}`);
         }
     })
     .catch(error => {
         console.error('Error dejando de seguir:', error);
+        alert(`Error al dejar de seguir: ${error.message}`);
     });
 }
 

@@ -1,4 +1,5 @@
 from django.urls import path
+from django.shortcuts import redirect
 from .views import (
     PostListView,
     PostDetailView,
@@ -25,7 +26,8 @@ urlpatterns = [
     path('post/new/', PostCreateView.as_view(), name='post-create'),
     path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
     path('post/<int:pk>/like/', views.like_post, name='like-post'),
-    path('user/<str:username>', UserPostListView.as_view(), name='user-posts'),
+    # Redirigir user-posts a user-profile-network para unificar vistas
+    path('user/<str:username>', lambda request, username: redirect('user-profile-network', username=username), name='user-posts'),
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/del/', PostDeleteView.as_view(), name='post-delete'),
     path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment-update'),
@@ -53,4 +55,6 @@ urlpatterns = [
     path('api/friend-suggestions/', social_views.api_friend_suggestions, name='api-friend-suggestions'),
     path('api/trending-topics/', social_views.api_trending_topics, name='api-trending-topics'),
     path('api/influencers/', social_views.api_influencers, name='api-influencers'),
+    path('api/follow/<int:user_id>/', social_views.api_follow_user, name='api-follow-user'),
+    path('api/unfollow/<int:user_id>/', social_views.api_unfollow_user, name='api-unfollow-user'),
 ]

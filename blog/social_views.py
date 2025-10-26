@@ -231,52 +231,43 @@ def network_analytics(request):
     # Obtener estadísticas del usuario
     user_stats = analytics.get_user_network_stats(request.user.id)
     
-    # Obtener sugerencias
-    suggested_friends = analytics.suggest_friends(request.user.id, limit=10)
+    # Obtener sugerencias (solo usuarios para seguir, no amigos)
     suggested_to_follow = analytics.suggest_users_to_follow(request.user.id, limit=10)
     
-    # Convertir nodos a usuarios de Django
-    suggested_friends_data = []
-    for user_node in suggested_friends:
-        try:
-            django_user = User.objects.get(id=user_node.user_id)
-            suggested_friends_data.append({
-                'user': django_user,
-                'neo4j_node': user_node
-            })
-        except User.DoesNotExist:
-            continue
-    
+    # Convertir a datos para template
     suggested_to_follow_data = []
-    for user_node in suggested_to_follow:
+    for suggestion in suggested_to_follow:
         try:
+            user_node = suggestion['user']
             django_user = User.objects.get(id=user_node.user_id)
             suggested_to_follow_data.append({
                 'user': django_user,
+                'common_interests': suggestion['common_interests'],
                 'neo4j_node': user_node
             })
         except User.DoesNotExist:
             continue
     
-    # Obtener influencers
+    # Obtener influencers (ahora devuelve diccionarios)
     influencers = analytics.get_influencers(limit=10)
     influencers_data = []
-    for user_node in influencers:
+    for influencer in influencers:
         try:
+            user_node = influencer['user']
             django_user = User.objects.get(id=user_node.user_id)
             influencers_data.append({
                 'user': django_user,
+                'followers': influencer['followers'],
                 'neo4j_node': user_node
             })
         except User.DoesNotExist:
             continue
     
-    # Intereses trending
+    # Intereses trending (ahora devuelve diccionarios)
     trending_interests = analytics.get_trending_interests(limit=10)
     
     context = {
         'user_stats': user_stats,
-        'suggested_friends': suggested_friends_data,
         'suggested_to_follow': suggested_to_follow_data,
         'influencers': influencers_data,
         'trending_interests': trending_interests,
@@ -287,7 +278,10 @@ def network_analytics(request):
 
 @login_required
 def user_profile_network(request, username):
-    """Vista de perfil de red de un usuario"""
+    """Vista de perfil de usuario con posts y estadísticas de red"""
+    from .models import Post
+    from django.core.paginator import Paginator
+    
     user = get_object_or_404(User, username=username)
     analytics = Neo4jAnalyticsService()
     user_service = Neo4jUserService()
@@ -295,15 +289,10 @@ def user_profile_network(request, username):
     # Obtener estadísticas del usuario
     user_stats = analytics.get_user_network_stats(user.id)
     
-    # Verificar si el usuario actual es amigo o sigue al perfil
-    is_friend = False
+    # Verificar si el usuario actual sigue al perfil
     is_following = False
     
     if request.user.id != user.id:
-        # Verificar amistad
-        friends = user_service.get_friends(request.user.id)
-        is_friend = any(f.user_id == user.id for f in friends)
-        
         # Verificar si sigue
         following = user_service.get_following(request.user.id)
         is_following = any(f.user_id == user.id for f in following)
@@ -312,18 +301,27 @@ def user_profile_network(request, username):
     interest_service = Neo4jInterestService()
     user_interests = interest_service.get_user_interests(user.id)
     
-    # Si ambos son amigos, obtener intereses comunes
-    common_interests = []
-    if is_friend:
-        common_interests = analytics.get_common_interests(request.user.id, user.id)
+    # Obtener posts del usuario
+    posts_list = Post.objects.filter(username=user).order_by('-post_date')
+    paginator = Paginator(posts_list, 10)  # 10 posts por página
+    page_number = request.GET.get('page')
+    posts = paginator.get_page(page_number)
+    
+    # Obtener lista de usuarios que el usuario actual está siguiendo (para botones de seguir)
+    try:
+        following_users = user_service.get_following(request.user.id)
+        following_user_ids = {u.user_id for u in following_users}
+    except Exception as e:
+        print(f"Error obteniendo usuarios seguidos: {e}")
+        following_user_ids = set()
     
     context = {
         'profile_user': user,
         'user_stats': user_stats,
-        'is_friend': is_friend,
         'is_following': is_following,
         'user_interests': user_interests,
-        'common_interests': common_interests,
+        'posts': posts,
+        'following_user_ids': following_user_ids,
         'title': f'Perfil de {user.username}'
     }
     return render(request, 'blog/user_profile_network.html', context)
@@ -335,9 +333,10 @@ def user_profile_network(request, username):
 
 @login_required
 def api_friend_suggestions(request):
-    """API para obtener sugerencias de amigos"""
+    """API para obtener sugerencias de usuarios para seguir (basado en intereses comunes)"""
     analytics = Neo4jAnalyticsService()
-    suggestions = analytics.suggest_friends(request.user.id)
+    # Cambiar de suggest_friends a suggest_users_to_follow
+    suggestions = analytics.suggest_users_to_follow(request.user.id)
     
     # Convertir a formato JSON
     suggestions_data = []
@@ -347,12 +346,13 @@ def api_friend_suggestions(request):
             suggestions_data.append({
                 'user_id': django_user.id,
                 'username': django_user.username,
-                'common_friends': suggestion['common_friends']
+                'common_interests': suggestion['common_interests']  # Cambiado de common_friends
             })
         except User.DoesNotExist:
             continue
     
     return JsonResponse({'suggestions': suggestions_data})
+
 
 
 @login_required
@@ -397,9 +397,51 @@ def api_influencers(request):
 def api_follow_user(request, user_id):
     """API para seguir a un usuario"""
     if request.method == 'POST':
-        user_service = Neo4jUserService()
-        success = user_service.follow_user(request.user.id, user_id)
-        return JsonResponse({'success': success})
+        try:
+            # Obtener el usuario a seguir
+            user_to_follow = User.objects.get(id=user_id)
+            
+            print(f"DEBUG: Usuario {request.user.id} ({request.user.username}) intentando seguir a {user_id} ({user_to_follow.username})")
+            
+            # Crear o actualizar ambos usuarios en Neo4j
+            user_service = Neo4jUserService()
+            
+            # Asegurar que el usuario actual existe en Neo4j
+            current_user = request.user
+            print(f"DEBUG: Creando/actualizando usuario actual {current_user.id} en Neo4j")
+            user_service.create_or_update_user(
+                current_user.id, 
+                current_user.username, 
+                current_user.email,
+                current_user.first_name, 
+                current_user.last_name, 
+                current_user.profile.bio if hasattr(current_user, 'profile') else ''
+            )
+            
+            # Asegurar que el usuario a seguir existe en Neo4j
+            print(f"DEBUG: Creando/actualizando usuario a seguir {user_to_follow.id} en Neo4j")
+            user_service.create_or_update_user(
+                user_to_follow.id,
+                user_to_follow.username,
+                user_to_follow.email,
+                user_to_follow.first_name,
+                user_to_follow.last_name,
+                user_to_follow.profile.bio if hasattr(user_to_follow, 'profile') else ''
+            )
+            
+            # Ahora sí, crear la relación de seguimiento
+            print(f"DEBUG: Creando relación de seguimiento")
+            success = user_service.follow_user(request.user.id, user_id)
+            print(f"DEBUG: Resultado follow_user: {success}")
+            return JsonResponse({'success': success})
+        except User.DoesNotExist:
+            print(f"ERROR: Usuario {user_id} no encontrado")
+            return JsonResponse({'success': False, 'error': 'Usuario no encontrado'}, status=404)
+        except Exception as e:
+            print(f"ERROR en api_follow_user: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False}, status=400)
 
 
@@ -407,8 +449,18 @@ def api_follow_user(request, user_id):
 def api_unfollow_user(request, user_id):
     """API para dejar de seguir a un usuario"""
     if request.method == 'POST':
-        user_service = Neo4jUserService()
-        success = user_service.unfollow_user(request.user.id, user_id)
-        return JsonResponse({'success': success})
+        try:
+            # Verificar que el usuario existe
+            user_to_unfollow = User.objects.get(id=user_id)
+            
+            # Dejar de seguir
+            user_service = Neo4jUserService()
+            success = user_service.unfollow_user(request.user.id, user_id)
+            return JsonResponse({'success': success})
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Usuario no encontrado'}, status=404)
+        except Exception as e:
+            print(f"Error en api_unfollow_user: {e}")
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False}, status=400)
 

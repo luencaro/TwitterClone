@@ -16,6 +16,7 @@ from urllib.parse import urlencode
 from .forms import NewCommentForm
 from .models import Comment, Post, Type, PostTag
 from .serializers import GroupSerializer, PostSerializer, UserSerializer
+from .neo4j_services import Neo4jPostService, Neo4jInterestService, Neo4jUserService
 
 PAGINATION_COUNT = 10
 
@@ -107,6 +108,17 @@ class PostListView(LoginRequiredMixin, ListView):
         context['active_type'] = getattr(self, 'active_type', '')
         context['current_querystring'] = getattr(self, 'current_querystring', '')
         context['comment_form'] = NewCommentForm()
+        
+        # Obtener lista de usuarios que el usuario actual está siguiendo
+        try:
+            user_service = Neo4jUserService()
+            following_users = user_service.get_following(self.request.user.id)
+            # Crear un set de user_ids para búsqueda rápida
+            context['following_user_ids'] = {user.user_id for user in following_users}
+        except Exception as e:
+            print(f"Error obteniendo usuarios seguidos: {e}")
+            context['following_user_ids'] = set()
+        
         return context
 
 
@@ -162,6 +174,20 @@ class PostDetailView(LoginRequiredMixin, DetailView):
             comment.username = request.user
             comment.post_id = self.object
             comment.save()
+            
+            # Sincronizar con Neo4j
+            try:
+                from .neo4j_services import Neo4jCommentService
+                neo4j_comment_service = Neo4jCommentService()
+                neo4j_comment_service.create_comment(
+                    comment_id=comment.id,
+                    user_id=request.user.id,
+                    post_id=self.object.id,
+                    content=comment.comment_content
+                )
+            except Exception as e:
+                print(f"Error sincronizando comentario con Neo4j: {e}")
+            
             return redirect('post-detail', pk=self.object.pk)
         context = self.get_context_data(form=form)
         return render(request, self.template_name, context)
@@ -178,6 +204,37 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         # Guardamos el objeto para obtener un ID antes de procesar los hashtags
         self.object = form.save()
         _process_hashtags(self.object)
+        
+        # Sincronizar con Neo4j
+        try:
+            neo4j_post_service = Neo4jPostService()
+            neo4j_user_service = Neo4jUserService()
+            
+            # Asegurar que el usuario existe en Neo4j
+            user = self.request.user
+            neo4j_user_service.create_or_update_user(
+                user.id, user.username, user.email,
+                user.first_name, user.last_name, user.profile.bio if hasattr(user, 'profile') else ''
+            )
+            
+            # Crear el post en Neo4j
+            neo4j_post_service.create_post(
+                post_id=self.object.id,
+                user_id=user.id,
+                content=self.object.post_content
+            )
+            
+            # Procesar hashtags en Neo4j
+            hashtags = re.findall(r'#(\w+)', self.object.post_content)
+            if hashtags:
+                interest_service = Neo4jInterestService()
+                for tag in set(hashtags):  # set para evitar duplicados
+                    interest_service.create_or_get_interest(tag)
+                    interest_service.tag_post_with_interest(self.object.id, tag)
+        except Exception as e:
+            print(f"Error sincronizando con Neo4j: {e}")
+            # No fallamos la creación del post si Neo4j falla
+        
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
@@ -196,6 +253,27 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         # El objeto se guarda automáticamente en UpdateView
         self.object = form.save()
         _process_hashtags(self.object)
+        
+        # Sincronizar con Neo4j
+        try:
+            neo4j_post_service = Neo4jPostService()
+            
+            # Actualizar el post en Neo4j
+            neo4j_post_service.update_post(
+                post_id=self.object.id,
+                content=self.object.post_content
+            )
+            
+            # Actualizar hashtags en Neo4j
+            hashtags = re.findall(r'#(\w+)', self.object.post_content)
+            if hashtags:
+                interest_service = Neo4jInterestService()
+                for tag in set(hashtags):
+                    interest_service.create_or_get_interest(tag)
+                    interest_service.tag_post_with_interest(self.object.id, tag)
+        except Exception as e:
+            print(f"Error sincronizando actualización con Neo4j: {e}")
+        
         return HttpResponseRedirect(self.get_success_url())
 
     def test_func(self):
@@ -212,6 +290,21 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_delete.html'
     success_url = reverse_lazy('blog-home')
+    
+    def delete(self, request, *args, **kwargs):
+        # Obtener el objeto antes de eliminarlo
+        self.object = self.get_object()
+        post_id = self.object.id
+        
+        # Eliminar de Neo4j primero
+        try:
+            neo4j_post_service = Neo4jPostService()
+            neo4j_post_service.delete_post(post_id)
+        except Exception as e:
+            print(f"Error eliminando post de Neo4j: {e}")
+        
+        # Llamar al método delete de la clase padre para eliminar de Django
+        return super().delete(request, *args, **kwargs)
 
     def test_func(self):
         post = self.get_object()
@@ -234,6 +327,22 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment_confirm_delete.html'
+    
+    def delete(self, request, *args, **kwargs):
+        # Obtener el objeto antes de eliminarlo
+        self.object = self.get_object()
+        comment_id = self.object.id
+        
+        # Eliminar de Neo4j primero
+        try:
+            from .neo4j_services import Neo4jCommentService
+            neo4j_comment_service = Neo4jCommentService()
+            neo4j_comment_service.delete_comment(comment_id)
+        except Exception as e:
+            print(f"Error eliminando comentario de Neo4j: {e}")
+        
+        # Llamar al método delete de la clase padre
+        return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('post-detail', kwargs={'pk': self.object.post_id.pk})

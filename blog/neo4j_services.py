@@ -404,12 +404,18 @@ class Neo4jAnalyticsService:
         MATCH (u:UserNode {user_id: $user_id})-[:FRIEND_OF]->(friend)-[:FRIEND_OF]->(suggestion)
         WHERE NOT (u)-[:FRIEND_OF]->(suggestion) AND u <> suggestion
         WITH suggestion, count(*) as common_friends
-        RETURN suggestion
+        RETURN suggestion, common_friends
         ORDER BY common_friends DESC
         LIMIT $limit
         """
         results, meta = db.cypher_query(query, {'user_id': user_id, 'limit': limit})
-        return [UserNode.inflate(row[0]) for row in results]
+        return [
+            {
+                'user': UserNode.inflate(row[0]),
+                'common_friends': row[1]
+            }
+            for row in results
+        ]
     
     @staticmethod
     def suggest_users_to_follow(user_id: int, limit: int = 10):
@@ -420,12 +426,18 @@ class Neo4jAnalyticsService:
         MATCH (u:UserNode {user_id: $user_id})-[:INTERESTED_IN]->(i:InterestNode)<-[:INTERESTED_IN]-(suggestion)
         WHERE NOT (u)-[:FOLLOWS]->(suggestion) AND u <> suggestion
         WITH suggestion, count(DISTINCT i) as common_interests
-        RETURN suggestion
+        RETURN suggestion, common_interests
         ORDER BY common_interests DESC
         LIMIT $limit
         """
         results, meta = db.cypher_query(query, {'user_id': user_id, 'limit': limit})
-        return [UserNode.inflate(row[0]) for row in results]
+        return [
+            {
+                'user': UserNode.inflate(row[0]),
+                'common_interests': row[1]
+            }
+            for row in results
+        ]
     
     @staticmethod
     def get_common_interests(user1_id: int, user2_id: int):
@@ -443,12 +455,18 @@ class Neo4jAnalyticsService:
         query = """
         MATCH (p:PostNode)-[:TAGGED_WITH]->(i:InterestNode)
         WITH i, count(p) as post_count
-        RETURN i
+        RETURN i, post_count
         ORDER BY post_count DESC
         LIMIT $limit
         """
         results, meta = db.cypher_query(query, {'limit': limit})
-        return [InterestNode.inflate(row[0]) for row in results]
+        return [
+            {
+                'interest': InterestNode.inflate(row[0]),
+                'count': row[1]
+            }
+            for row in results
+        ]
     
     @staticmethod
     def get_influencers(limit: int = 10):
@@ -456,12 +474,18 @@ class Neo4jAnalyticsService:
         query = """
         MATCH (u:UserNode)<-[:FOLLOWS]-(follower)
         WITH u, count(follower) as follower_count
-        RETURN u
+        RETURN u, follower_count
         ORDER BY follower_count DESC
         LIMIT $limit
         """
         results, meta = db.cypher_query(query, {'limit': limit})
-        return [UserNode.inflate(row[0]) for row in results]
+        return [
+            {
+                'user': UserNode.inflate(row[0]),
+                'followers': row[1]
+            }
+            for row in results
+        ]
     
     @staticmethod
     def get_user_network_stats(user_id: int):
