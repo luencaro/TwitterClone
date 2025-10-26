@@ -327,3 +327,88 @@ def user_profile_network(request, username):
         'title': f'Perfil de {user.username}'
     }
     return render(request, 'blog/user_profile_network.html', context)
+
+
+# ============================================
+# APIs para widgets sociales
+# ============================================
+
+@login_required
+def api_friend_suggestions(request):
+    """API para obtener sugerencias de amigos"""
+    analytics = Neo4jAnalyticsService()
+    suggestions = analytics.suggest_friends(request.user.id)
+    
+    # Convertir a formato JSON
+    suggestions_data = []
+    for suggestion in suggestions[:5]:  # Top 5 sugerencias
+        try:
+            django_user = User.objects.get(id=suggestion['user'].user_id)
+            suggestions_data.append({
+                'user_id': django_user.id,
+                'username': django_user.username,
+                'common_friends': suggestion['common_friends']
+            })
+        except User.DoesNotExist:
+            continue
+    
+    return JsonResponse({'suggestions': suggestions_data})
+
+
+@login_required
+def api_trending_topics(request):
+    """API para obtener trending topics"""
+    analytics = Neo4jAnalyticsService()
+    trending = analytics.get_trending_interests()
+    
+    trending_data = [
+        {
+            'name': topic['interest'].name,
+            'count': topic['count']
+        }
+        for topic in trending[:10]  # Top 10 trending
+    ]
+    
+    return JsonResponse({'trending': trending_data})
+
+
+@login_required
+def api_influencers(request):
+    """API para obtener usuarios influencers"""
+    analytics = Neo4jAnalyticsService()
+    influencers = analytics.get_influencers()
+    
+    influencers_data = []
+    for influencer in influencers[:5]:  # Top 5 influencers
+        try:
+            django_user = User.objects.get(id=influencer['user'].user_id)
+            influencers_data.append({
+                'user_id': django_user.id,
+                'username': django_user.username,
+                'followers': influencer['followers']
+            })
+        except User.DoesNotExist:
+            continue
+    
+    return JsonResponse({'influencers': influencers_data})
+
+
+@login_required
+def api_follow_user(request, user_id):
+    """API para seguir a un usuario"""
+    if request.method == 'POST':
+        user_service = Neo4jUserService()
+        success = user_service.follow_user(request.user.id, user_id)
+        return JsonResponse({'success': success})
+    return JsonResponse({'success': False}, status=400)
+
+
+@login_required
+def api_unfollow_user(request, user_id):
+    """API para dejar de seguir a un usuario"""
+    if request.method == 'POST':
+        user_service = Neo4jUserService()
+        success = user_service.unfollow_user(request.user.id, user_id)
+        return JsonResponse({'success': success})
+    return JsonResponse({'success': False}, status=400)
+

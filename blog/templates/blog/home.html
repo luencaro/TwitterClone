@@ -1,88 +1,124 @@
 {% extends "blog/base.html" %}
 {% load static %}
 {% block content %}
-<div class="home-shell py-4">
-    <div class="home-header mb-4">
-        <div class="home-heading">
-            <h1 class="mb-2">Publicaciones</h1>
-            {% if active_type %}
-                <p class="text-muted mb-0">Mostrando resultados para <span class="badge bg-info text-dark">#{{ active_type }}</span></p>
-            {% elif search_query %}
-                <p class="text-muted mb-0">Resultados para: "{{ search_query }}"</p>
-            {% else %}
-                <p class="text-muted mb-0">Explora lo más reciente de la comunidad.</p>
-            {% endif %}
+
+<div class="main-content-header">
+    <h1 class="main-content-title">Inicio</h1>
+</div>
+
+<div class="px-4 py-3">
+    <!-- Formulario de búsqueda -->
+    <form action="{% url 'blog-home' %}" method="get" class="mb-4">
+        <div class="input-group">
+            <input class="form-control" type="search" placeholder="Buscar hashtags o palabras..." aria-label="Buscar" name="q" value="{{ search_query }}">
+            <div class="input-group-append">
+                <button class="btn btn-outline-primary" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
         </div>
-        <div class="home-actions">
-            <form class="home-search" action="{% url 'blog-home' %}" method="get">
-                <div class="input-group home-search-group">
-                    <input class="form-control" type="search" placeholder="Hashtags o palabras..." aria-label="Buscar" name="q" value="{{ search_query }}">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="submit">Buscar</button>
+    </form>
+
+    {% if active_type %}
+        <div class="alert alert-info mb-3">
+            <i class="fas fa-hashtag"></i> Mostrando publicaciones con <strong>#{{ active_type }}</strong>
+            <a href="{% url 'blog-home' %}" class="float-right text-dark">Ver todas</a>
+        </div>
+    {% elif search_query %}
+        <div class="alert alert-info mb-3">
+            <i class="fas fa-search"></i> Resultados para: <strong>"{{ search_query }}"</strong>
+            <a href="{% url 'blog-home' %}" class="float-right text-dark">Ver todas</a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Posts feed -->
+
+{% for post in posts %}
+    <article class="card post-card" data-post-id="{{ post.pk }}">
+        <div class="card-body">
+            <!-- Autor del post -->
+            <div class="post-author">
+                <div class="post-author-avatar">
+                    {{ post.username.username|slice:":1"|upper }}
+                </div>
+                <div class="post-author-info">
+                    <a href="{% url 'user-posts' post.username.username %}" class="post-author-name">
+                        {{ post.username.get_full_name|default:post.username.username }}
+                        <span class="post-author-username">@{{ post.username.username }}</span>
+                    </a>
+                    <div class="text-muted" style="font-size: 14px;">
+                        {{ post.post_date|date:"d/m/Y H:i" }}
                     </div>
                 </div>
-            </form>
-            <a class="btn btn-outline-secondary home-new-post d-none d-md-inline-flex" href="{% url 'post-create' %}">Nuevo post</a>
-        </div>
-    </div>
-
-    <div class="home-action-mobile d-md-none mb-4">
-        <a class="btn btn-primary btn-block w-100" href="{% url 'post-create' %}">Nuevo post</a>
-    </div>
-
-    {% for post in posts %}
-        <article class="card post-card js-post-card mb-4" data-href="{% url 'post-detail' post.pk %}" role="link" tabindex="0">
-            <div class="card-body">
-                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
-                    <div>
-                        <h5 class="card-title mb-1">
-                            <a class="post-card-title-link" href="{% url 'post-detail' post.pk %}">{{ post.post_content|truncatechars:140 }}</a>
-                        </h5>
-                        <small class="text-muted">
-                            por <a href="{% url 'user-posts' post.username.username %}">{{ post.username.username }}</a>
-                            · {{ post.post_date|date:"d/m/Y H:i" }}
-                        </small>
-                    </div>
-                    {% if post.username == user %}
-                        <div class="d-flex align-items-center gap-2 justify-content-md-end">
-                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'post-update' post.pk %}">Editar</a>
-                            <a class="btn btn-sm btn-outline-danger" href="{% url 'post-delete' post.pk %}">Eliminar</a>
-                        </div>
-                    {% endif %}
-                </div>
+                {% if post.username != user %}
+                    <button class="btn btn-sm btn-outline-primary rounded-pill btn-follow-post" 
+                            data-user-id="{{ post.username.id }}">
+                        Seguir
+                    </button>
+                {% endif %}
+            </div>
+            
+            <!-- Contenido del post -->
+            <div class="post-content mb-3 clickable-post" data-url="{% url 'post-detail' post.pk %}" style="cursor: pointer;">
+                <p class="mb-2">{{ post.post_content }}</p>
+                
                 {% if post.post_tags.all %}
-                    <div class="mt-3 d-flex flex-wrap gap-2">
+                    <div class="d-flex flex-wrap gap-2 mb-2">
                         {% for tag in post.post_tags.all %}
-                            <a href="{% url 'blog-home' %}?type={{ tag.type_id.type_name }}" class="badge bg-info text-dark">#{{ tag.type_id.type_name }}</a>
+                            <a href="{% url 'blog-home' %}?type={{ tag.type_id.type_name }}" 
+                               class="badge badge-info" 
+                               style="font-size: 13px;">
+                                #{{ tag.type_id.type_name }}
+                            </a>
                         {% endfor %}
                     </div>
                 {% endif %}
-                <p class="mt-3 mb-0 text-muted">{{ post.comments.count }} comentario(s)</p>
-                <div class="like-container mt-3">
-                    <form method="post"
-                          action="{% url 'like-post' post.pk %}"
-                          class="like-form js-like-form"
-                          data-post-id="{{ post.pk }}"
-                          data-login-url="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">
-                        {% csrf_token %}
-                        <button type="submit"
-                                class="like-button {% if user in post.likes.all %}liked{% endif %}"
-                                aria-label="Me gusta"
-                                aria-pressed="{% if user in post.likes.all %}true{% else %}false{% endif %}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                        </button>
-                    </form>
-                    <span class="like-count" data-like-count="{{ post.pk }}">{{ post.number_of_likes }}</span>
-                </div>
             </div>
-        </article>
-    {% empty %}
-        <div class="alert alert-info">No hay publicaciones todavía. ¡Crea la primera!</div>
-    {% endfor %}
+            
+            <!-- Acciones del post -->
+            <div class="post-actions">
+                <div class="post-action post-comment-action" data-url="{% url 'post-detail' post.pk %}">
+                    <i class="far fa-comment"></i>
+                    <span>{{ post.comments.count }}</span>
+                </div>
+                
+                <form method="post"
+                      action="{% url 'like-post' post.pk %}"
+                      class="like-form"
+                      style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="post-action {% if user in post.likes.all %}liked{% endif %}"
+                            style="border: none; background: none;">
+                        <i class="{% if user in post.likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                        <span class="like-count">{{ post.number_of_likes }}</span>
+                    </button>
+                </form>
+                
+                {% if post.username == user %}
+                    <div class="post-action post-edit-action" data-url="{% url 'post-update' post.pk %}">
+                        <i class="far fa-edit"></i>
+                        <span>Editar</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+{% empty %}
+    <div class="px-4 py-5 text-center">
+        <i class="fas fa-feather-alt fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No hay publicaciones todavía</h5>
+        <p class="text-muted">¡Sé el primero en publicar algo!</p>
+        <a href="{% url 'post-create' %}" class="btn btn-primary rounded-pill">
+            <i class="fas fa-feather-alt"></i> Crear publicación
+        </a>
+    </div>
+{% endfor %}
 
-    {% if is_paginated %}
+<!-- Paginación -->
+{% if is_paginated %}
+    <div class="px-4 py-3">
         <nav aria-label="Paginación de posts">
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
@@ -112,6 +148,7 @@
                 {% endif %}
             </ul>
         </nav>
-    {% endif %}
-</div>
+    </div>
+{% endif %}
+
 {% endblock content %}
