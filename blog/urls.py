@@ -10,6 +10,7 @@ from .views import (
     CommentDeleteView,
     post_list)
 from . import views
+from . import social_views
 from django.urls import include
 from rest_framework import routers
 
@@ -31,5 +32,20 @@ urlpatterns = [
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment-delete'),
     path('l/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/posts', post_list)
+    path('api/posts', post_list),
+    
+    # Rutas de red social con Neo4j
+    path('friends/', social_views.friends_list, name='friends-list'),
+    path('friends/add/<int:user_id>/', social_views.add_friend, name='add-friend'),
+    path('friends/remove/<int:user_id>/', social_views.remove_friend, name='remove-friend'),
+    path('follow/<int:user_id>/', social_views.follow_user, name='follow-user'),
+    path('unfollow/<int:user_id>/', social_views.unfollow_user, name='unfollow-user'),
+    path('followers/', social_views.followers_list, name='followers-list'),
+    path('followers/<str:username>/', social_views.followers_list, name='followers-list'),
+    path('following/', social_views.following_list, name='following-list'),
+    path('following/<str:username>/', social_views.following_list, name='following-list'),
+    path('interests/', social_views.interests_list, name='interests-list'),
+    path('interests/<str:interest_name>/', social_views.posts_by_interest, name='posts-by-interest'),
+    path('analytics/', social_views.network_analytics, name='network-analytics'),
+    path('profile/<str:username>/', social_views.user_profile_network, name='user-profile-network'),
 ]

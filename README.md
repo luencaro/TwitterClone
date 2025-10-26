@@ -1,14 +1,110 @@
-# Bases de Datos - Laboratorio 03: Aplicación de Gestión de Posts y Comentarios
+# TwitterClone - Red Social con Neo4j
 
-Este repositorio contiene el desarrollo de una aplicación para la gestión de posts y comentarios, implementada como parte del Laboratorio 03 de la asignatura de Bases de Datos. El objetivo principal es afianzar los conocimientos en diseño y modelamiento de bases de datos relacionales.
+[![Django](https://img.shields.io/badge/Django-4.2.11-green.svg)](https://www.djangoproject.com/)
+[![Neo4j](https://img.shields.io/badge/Neo4j-5.14-blue.svg)](https://neo4j.com/)
+[![Python](https://img.shields.io/badge/Python-3.8+-yellow.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-red.svg)](LICENSE)
+
+Aplicación web de red social desarrollada con Django que utiliza **Neo4j** como base de datos de grafos para modelar eficientemente las relaciones entre usuarios, publicaciones, comentarios e intereses.
+
+## 🌟 Características Principales
+
+### Funcionalidades Core
+- ✅ Sistema de autenticación y registro
+- ✅ Creación y gestión de publicaciones
+- ✅ Sistema de comentarios
+- ✅ Likes en publicaciones
+- ✅ Hashtags y categorización
+
+### Red Social con Neo4j
+- 🤝 **Sistema de Amigos**: Relaciones bidireccionales
+- 👥 **Seguimiento**: Follow/Unfollow de usuarios
+- 🏷️ **Intereses**: Seguimiento de temas/hashtags
+- 📊 **Feed Personalizado**: Posts de usuarios seguidos
+
+### Análisis Inteligente
+- 🔍 **Sugerencias de Amigos**: Basadas en amigos en común
+- 💡 **Recomendaciones**: Usuarios con intereses similares
+- 🌟 **Identificación de Influencers**: Rankings de usuarios
+- 📈 **Trending Topics**: Temas más populares
+- 📉 **Análisis de Red**: Estadísticas completas
+
+## ⚡ Inicio Rápido
+
+### Instalación Automática
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+### Instalación Manual
+```bash
+# 1. Iniciar Neo4j
+docker run --name neo4j -p 7474:7474 -p 7687:7687 \
+    -e NEO4J_AUTH=neo4j/password -d neo4j:5.14
+
+# 2. Configurar proyecto
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# 3. Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus credenciales
+
+# 4. Migrar datos
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py migrate_to_neo4j --clear
+
+# 5. Iniciar servidor
+python manage.py runserver
+```
+
+**Visita:** http://localhost:8000
+
+## 📚 Documentación
+
+| Archivo | Descripción |
+|---------|-------------|
+| [QUICKSTART.md](QUICKSTART.md) | Guía de inicio rápido (10 minutos) |
+| [NEO4J_README.md](NEO4J_README.md) | Documentación completa del proyecto |
+| [DATA_MODEL.md](DATA_MODEL.md) | Modelo de datos y diagramas |
+| [CYPHER_QUERIES.md](CYPHER_QUERIES.md) | 50+ queries útiles de Cypher |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Guía de despliegue en producción |
+| [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) | Resumen ejecutivo |
 
 ## 🚀 Tecnologías Utilizadas
 
-*   **Lenguaje de Programación:** Python
-*   **Framework:** Django
-*   **Motor de Base de Datos:** SQLite
+| Tecnología | Versión | Propósito |
+|------------|---------|-----------|
+| Python | 3.8+ | Lenguaje principal |
+| Django | 4.2.11 | Framework web |
+| **Neo4j** | **5.14+** | **Base de datos de grafos** |
+| **Neomodel** | **5.2.1** | **OGM para Neo4j** |
+| SQLite | - | Auth y sesiones |
+| Bootstrap | 5 | Frontend |
+| REST Framework | 3.14.0 | API REST |
 
-## 📦 Estructura del Proyecto
+## 📊 Arquitectura del Sistema
+
+```
+┌─────────────────────────────────────────────┐
+│           TwitterClone Application           │
+├─────────────────────────────────────────────┤
+│  ┌──────────────┐      ┌──────────────┐    │
+│  │   Django     │◄────►│    Neo4j     │    │
+│  │  (SQLite)    │      │   (Grafos)   │    │
+│  └──────────────┘      └──────────────┘    │
+│        │                       │            │
+│  ┌─────▼──────┐      ┌────────▼────────┐  │
+│  │ User Auth  │      │  Social Graph   │  │
+│  │ Sessions   │      │  Relationships  │  │
+│  └────────────┘      └─────────────────┘  │
+└─────────────────────────────────────────────┘
+```
+
+## �️ Estructura del Proyecto
 
 El proyecto incluye un diseño detallado de la base de datos y scripts para su creación:
 

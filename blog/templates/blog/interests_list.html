@@ -1,0 +1,77 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ title }}</h2>
+    
+    <div class="row">
+        <!-- Intereses del Usuario -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Tus Intereses</h4>
+                </div>
+                <div class="card-body">
+                    {% if user_interests %}
+                        <div class="list-group">
+                            {% for interest in user_interests %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <a href="{% url 'posts-by-interest' interest.name %}" class="flex-grow-1">
+                                    #{{ interest.name }}
+                                </a>
+                                <form method="POST" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="interest_name" value="{{ interest.name }}">
+                                    <input type="hidden" name="action" value="remove">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aún no has agregado intereses.</p>
+                    {% endif %}
+                    
+                    <!-- Formulario para agregar interés -->
+                    <form method="POST" class="mt-3">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" name="interest_name" class="form-control" 
+                                   placeholder="Agregar nuevo interés" required>
+                            <input type="hidden" name="action" value="add">
+                            <button type="submit" class="btn btn-success">Agregar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Intereses Trending -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Intereses Populares</h4>
+                </div>
+                <div class="card-body">
+                    {% if trending_interests %}
+                        <div class="list-group">
+                            {% for interest in trending_interests %}
+                            <a href="{% url 'posts-by-interest' interest.name %}" 
+                               class="list-group-item list-group-item-action">
+                                #{{ interest.name }}
+                                <span class="badge bg-secondary float-end">Trending</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay intereses trending aún.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,155 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ title }}</h2>
+    
+    <!-- Estadísticas del Usuario -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Tus Estadísticas de Red</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col">
+                            <h3 class="text-primary">{{ user_stats.posts }}</h3>
+                            <p class="text-muted">Publicaciones</p>
+                        </div>
+                        <div class="col">
+                            <h3 class="text-primary">{{ user_stats.followers }}</h3>
+                            <p class="text-muted">Seguidores</p>
+                        </div>
+                        <div class="col">
+                            <h3 class="text-primary">{{ user_stats.following }}</h3>
+                            <p class="text-muted">Siguiendo</p>
+                        </div>
+                        <div class="col">
+                            <h3 class="text-primary">{{ user_stats.friends }}</h3>
+                            <p class="text-muted">Amigos</p>
+                        </div>
+                        <div class="col">
+                            <h3 class="text-primary">{{ user_stats.interests }}</h3>
+                            <p class="text-muted">Intereses</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Amigos Sugeridos -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Amigos Sugeridos</h5>
+                    <small>Basado en amigos en común</small>
+                </div>
+                <div class="card-body">
+                    {% if suggested_friends %}
+                        <div class="list-group">
+                            {% for friend_data in suggested_friends %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <a href="{% url 'user-profile-network' friend_data.user.username %}">
+                                    {{ friend_data.user.username }}
+                                </a>
+                                <form method="POST" action="{% url 'add-friend' friend_data.user.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success">Agregar</button>
+                                </form>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay sugerencias disponibles.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Usuarios Sugeridos para Seguir -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Usuarios para Seguir</h5>
+                    <small>Basado en intereses comunes</small>
+                </div>
+                <div class="card-body">
+                    {% if suggested_to_follow %}
+                        <div class="list-group">
+                            {% for user_data in suggested_to_follow %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <a href="{% url 'user-profile-network' user_data.user.username %}">
+                                    {{ user_data.user.username }}
+                                </a>
+                                <form method="POST" action="{% url 'follow-user' user_data.user.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-info">Seguir</button>
+                                </form>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay sugerencias disponibles.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Influencers -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Usuarios Influyentes</h5>
+                    <small>Con más seguidores</small>
+                </div>
+                <div class="card-body">
+                    {% if influencers %}
+                        <div class="list-group">
+                            {% for influencer_data in influencers %}
+                            <a href="{% url 'user-profile-network' influencer_data.user.username %}" 
+                               class="list-group-item list-group-item-action">
+                                {{ influencer_data.user.username }}
+                                <span class="badge bg-warning float-end">Influencer</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos disponibles.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Intereses Trending -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Intereses Trending</h5>
+                    <small>Más populares</small>
+                </div>
+                <div class="card-body">
+                    {% if trending_interests %}
+                        <div class="list-group">
+                            {% for interest in trending_interests %}
+                            <a href="{% url 'posts-by-interest' interest.name %}" 
+                               class="list-group-item list-group-item-action">
+                                #{{ interest.name }}
+                                <span class="badge bg-danger float-end">🔥</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos disponibles.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,34 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ title }}</h2>
+        <span class="badge bg-primary">#{{ interest_name }}</span>
+    </div>
+    
+    {% if posts %}
+        {% for post_data in posts %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="{% url 'user-posts' post_data.author.username %}">{{ post_data.author.username }}</a>
+                    <small class="text-muted">{{ post_data.post.created_at|date:"F d, Y" }}</small>
+                </div>
+                <p class="article-content">{{ post_data.post.content }}</p>
+                <div class="mt-2">
+                    <a href="{% url 'post-detail' post_data.post.post_id %}" class="btn btn-sm btn-outline-primary">
+                        Ver detalles
+                    </a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">No hay publicaciones con este interés aún.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock content %}

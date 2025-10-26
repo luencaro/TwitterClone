@@ -1,0 +1,120 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2>{{ profile_user.username }}</h2>
+                    {% if profile_user.first_name %}
+                        <p class="lead">{{ profile_user.first_name }} {{ profile_user.last_name }}</p>
+                    {% endif %}
+                    <p class="text-muted">Miembro desde {{ profile_user.date_joined|date:"F Y" }}</p>
+                    
+                    <!-- Acciones -->
+                    {% if user.id != profile_user.id %}
+                    <div class="btn-group mt-3" role="group">
+                        {% if is_friend %}
+                            <form method="POST" action="{% url 'remove-friend' profile_user.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Eliminar Amigo</button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{% url 'add-friend' profile_user.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Agregar Amigo</button>
+                            </form>
+                        {% endif %}
+                        
+                        {% if is_following %}
+                            <form method="POST" action="{% url 'unfollow-user' profile_user.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning">Dejar de Seguir</button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{% url 'follow-user' profile_user.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-info">Seguir</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Estadísticas -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Estadísticas de Red</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col">
+                            <h4>{{ user_stats.posts }}</h4>
+                            <p class="text-muted">Posts</p>
+                        </div>
+                        <div class="col">
+                            <a href="{% url 'followers-list' profile_user.username %}" class="text-decoration-none">
+                                <h4>{{ user_stats.followers }}</h4>
+                                <p class="text-muted">Seguidores</p>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href="{% url 'following-list' profile_user.username %}" class="text-decoration-none">
+                                <h4>{{ user_stats.following }}</h4>
+                                <p class="text-muted">Siguiendo</p>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <h4>{{ user_stats.friends }}</h4>
+                            <p class="text-muted">Amigos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Intereses del Usuario -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Intereses</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_interests %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for interest in user_interests %}
+                                <a href="{% url 'posts-by-interest' interest.name %}" class="badge bg-secondary text-decoration-none">
+                                    #{{ interest.name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Sin intereses registrados.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Intereses Comunes -->
+            {% if common_interests %}
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Intereses Comunes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for interest in common_interests %}
+                            <a href="{% url 'posts-by-interest' interest.name %}" class="badge bg-success text-decoration-none">
+                                #{{ interest.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
