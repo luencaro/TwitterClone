@@ -110,34 +110,35 @@
             <div class="container">
                 <div class="collapse navbar-collapse">
                     <div class="navbar-nav mr-auto pl-2">
-                        <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
-                        <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a>
+                        <a class="nav-item nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-dove"></i> BlogRoom
+                        </a>
                     </div>
                     <div class="navbar-nav ml-auto pr-2">
-                        <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
-                        <a class="nav-item nav-link" href="{% url 'register-users' %}">Register</a>
+                        <a class="nav-item nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a class="nav-item nav-link" href="{% url 'register-users' %}">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
                     </div>
                 </div>
             </div>
         </nav>
     </header>
-    <main role="main" class="container-fluid">
+    <main role="main" class="container">
         <br>
-        <div class="row justify-content-center">
-            <div class="col-12 col-xl-10 col-xxl-9">
-                {% if messages %}
-                    {% for message in messages %}
-                      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
-                        {{ message }}
-                        <button type="button" class="close" data-dismiss="alert">
-                          <span>&times;</span>
-                        </button>
-                      </div>
-                    {% endfor %}
-                {% endif %}
-                {# Segundo bloque content eliminado - templates de login/register usarán el bloque dentro del layout Twitter #}
-            </div>
-        </div>
+        {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">
+                  <span>&times;</span>
+                </button>
+              </div>
+            {% endfor %}
+        {% endif %}
+        {% block public_content %}{% endblock %}
     </main>
     {% endif %}
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

@@ -1,18 +1,72 @@
 {% extends "blog/base.html" %}
-{% block content %}
-<div class="auth-page container">
-    <div class="auth-shell">
-        <form method="POST" class="auth-card">
-            {% csrf_token %}
-            <fieldset class="form-group">
-                <legend>Iniciar sesión</legend>
-                {{ form.as_p }}
-            </fieldset>
-            <button class="btn btn-primary" type="submit">Entrar</button>
-        </form>
-        <p class="auth-meta">
-            ¿Necesitas una cuenta? <a href="{% url 'register-users' %}">Regístrate</a>
-        </p>
+
+{% block public_content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-dove fa-3x text-primary mb-3"></i>
+                        <h2 class="card-title">Inicia sesión</h2>
+                        <p class="text-muted">Bienvenido de vuelta a BlogRoom</p>
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.username.id_for_label }}">Usuario</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.username.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.password.id_for_label }}">Contraseña</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <button class="btn btn-primary btn-block btn-lg rounded-pill mt-4" type="submit">
+                            <i class="fas fa-sign-in-alt"></i> Entrar
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <p class="text-center text-muted mb-0">
+                        ¿No tienes cuenta? <a href="{% url 'register-users' %}" class="text-primary font-weight-bold">Regístrate aquí</a>
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-{% endblock content %}
+
+<style>
+    .form-control {
+        border-radius: 25px;
+        padding: 12px 20px;
+        border: 2px solid #e1e8ed;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        border-color: #1da1f2;
+        box-shadow: 0 0 0 0.2rem rgba(29, 161, 242, 0.25);
+    }
+</style>
+{% endblock public_content %}

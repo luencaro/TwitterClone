@@ -1,18 +1,105 @@
 {% extends "blog/base.html" %}
-{% block content %}
-<div class="auth-page container">
-    <div class="auth-shell">
-        <form method="POST" class="auth-card">
-            {% csrf_token %}
-            <fieldset class="form-group">
-                <legend>Crear nueva cuenta</legend>
-                {{ form.as_p }}
-            </fieldset>
-            <button class="btn btn-primary" type="submit">Registrarse</button>
-        </form>
-        <p class="auth-meta">
-            ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>
-        </p>
+
+{% block public_content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-dove fa-3x text-primary mb-3"></i>
+                        <h2 class="card-title">Únete a BlogRoom</h2>
+                        <p class="text-muted">Crea tu cuenta y empieza a compartir</p>
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="{{ form.username.id_for_label }}">Usuario</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.username.errors }}
+                                </div>
+                            {% else %}
+                                <small class="form-text text-muted">
+                                    {{ form.username.help_text }}
+                                </small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.email.id_for_label }}">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.password1.id_for_label }}">Contraseña</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password1.errors }}
+                                </div>
+                            {% else %}
+                                <small class="form-text text-muted">
+                                    {{ form.password1.help_text }}
+                                </small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.password2.id_for_label }}">Confirmar Contraseña</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password2.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <button class="btn btn-primary btn-block btn-lg rounded-pill mt-4" type="submit">
+                            <i class="fas fa-user-plus"></i> Crear Cuenta
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <p class="text-center text-muted mb-0">
+                        ¿Ya tienes cuenta? <a href="{% url 'login' %}" class="text-primary font-weight-bold">Inicia sesión</a>
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-{% endblock content %}
+
+<style>
+    .form-control {
+        border-radius: 25px;
+        padding: 12px 20px;
+        border: 2px solid #e1e8ed;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        border-color: #1da1f2;
+        box-shadow: 0 0 0 0.2rem rgba(29, 161, 242, 0.25);
+    }
+    
+    .form-text {
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock public_content %}
