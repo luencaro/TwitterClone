@@ -80,23 +80,38 @@ function loadFriendSuggestions() {
 }
 
 function loadTrendingTopics() {
+    console.log('🔍 Cargando trending topics...');
     fetch('/api/trending-topics/')
-        .then(response => response.json())
+        .then(response => {
+            console.log('📡 Respuesta recibida:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('📊 Datos de tendencias:', data);
             const container = document.getElementById('trending-topics');
             if (data.trending && data.trending.length > 0) {
+                console.log(`✅ Mostrando ${data.trending.length} tendencias`);
+                
+                // Logging detallado de cada tendencia
+                data.trending.forEach((topic, index) => {
+                    console.log(`  ${index + 1}. #${topic.name}: ${topic.count} posts`);
+                });
+                
                 container.innerHTML = data.trending.slice(0, 5).map(topic => `
                     <div class="trending-item" onclick="window.location.href='/?type=${encodeURIComponent(topic.name)}'">
                         <div class="trending-topic">#${topic.name}</div>
                         <div class="trending-count">${topic.count} publicaciones</div>
                     </div>
                 `).join('');
+                
+                console.log('✅ Widget de tendencias actualizado en el DOM');
             } else {
+                console.log('⚠️ No hay tendencias para mostrar');
                 container.innerHTML = '<p class="text-muted text-center">No hay tendencias aún</p>';
             }
         })
         .catch(error => {
-            console.error('Error cargando tendencias:', error);
+            console.error('❌ Error cargando tendencias:', error);
             document.getElementById('trending-topics').innerHTML = 
                 '<p class="text-muted text-center">Error al cargar tendencias</p>';
         });

@@ -207,6 +207,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         
         # Sincronizar con Neo4j
         try:
+            print(f"🔄 Iniciando sincronización con Neo4j para post {self.object.post_id}")
             neo4j_post_service = Neo4jPostService()
             neo4j_user_service = Neo4jUserService()
             
@@ -216,23 +217,20 @@ class PostCreateView(LoginRequiredMixin, CreateView):
                 user.id, user.username, user.email,
                 user.first_name, user.last_name, user.profile.bio if hasattr(user, 'profile') else ''
             )
+            print(f"✅ Usuario {user.username} verificado en Neo4j")
             
             # Crear el post en Neo4j
             neo4j_post_service.create_post(
-                post_id=self.object.id,
+                post_id=self.object.post_id,
                 user_id=user.id,
                 content=self.object.post_content
             )
+            print(f"✅ Post {self.object.post_id} sincronizado con Neo4j: {self.object.post_content[:50]}...")
             
-            # Procesar hashtags en Neo4j
-            hashtags = re.findall(r'#(\w+)', self.object.post_content)
-            if hashtags:
-                interest_service = Neo4jInterestService()
-                for tag in set(hashtags):  # set para evitar duplicados
-                    interest_service.create_or_get_interest(tag)
-                    interest_service.tag_post_with_interest(self.object.id, tag)
         except Exception as e:
-            print(f"Error sincronizando con Neo4j: {e}")
+            print(f"❌ Error sincronizando post {self.object.post_id} con Neo4j: {e}")
+            import traceback
+            traceback.print_exc()
             # No fallamos la creación del post si Neo4j falla
         
         return HttpResponseRedirect(self.get_success_url())
@@ -256,23 +254,20 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         
         # Sincronizar con Neo4j
         try:
+            print(f"🔄 Actualizando post {self.object.post_id} en Neo4j")
             neo4j_post_service = Neo4jPostService()
             
             # Actualizar el post en Neo4j
             neo4j_post_service.update_post(
-                post_id=self.object.id,
+                post_id=self.object.post_id,
                 content=self.object.post_content
             )
+            print(f"✅ Post {self.object.post_id} actualizado en Neo4j")
             
-            # Actualizar hashtags en Neo4j
-            hashtags = re.findall(r'#(\w+)', self.object.post_content)
-            if hashtags:
-                interest_service = Neo4jInterestService()
-                for tag in set(hashtags):
-                    interest_service.create_or_get_interest(tag)
-                    interest_service.tag_post_with_interest(self.object.id, tag)
         except Exception as e:
-            print(f"Error sincronizando actualización con Neo4j: {e}")
+            print(f"❌ Error sincronizando actualización con Neo4j: {e}")
+            import traceback
+            traceback.print_exc()
         
         return HttpResponseRedirect(self.get_success_url())
 
