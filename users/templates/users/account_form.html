@@ -2,9 +2,29 @@
 {% block content %}
 <div class="container py-4">
     <h2 class="mb-4">Editar perfil</h2>
-    <form method="POST" class="card card-body">
+    <form method="POST" enctype="multipart/form-data" class="card card-body">
         {% csrf_token %}
-        {{ form.as_p }}
+        
+        <!-- Profile Image Preview -->
+        <div class="form-group mb-4 text-center">
+            <img class="rounded-circle mb-3" src="{{ user.profile.image.url }}" alt="Foto de perfil" width="150" height="150" style="object-fit: cover;">
+            <div>
+                <small class="text-muted">Imagen de perfil actual</small>
+            </div>
+        </div>
+        
+        <!-- User Information -->
+        <fieldset class="border p-3 mb-3">
+            <legend class="w-auto px-2">Información de usuario</legend>
+            {{ u_form.as_p }}
+        </fieldset>
+        
+        <!-- Profile Information -->
+        <fieldset class="border p-3 mb-3">
+            <legend class="w-auto px-2">Información personal</legend>
+            {{ p_form.as_p }}
+        </fieldset>
+        
         <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mt-3">
             <div class="d-flex gap-2">
                 <a class="btn btn-outline-secondary" href="{% url 'password_change' %}">Cambiar contraseña</a>

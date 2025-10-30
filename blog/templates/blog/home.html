@@ -1,5 +1,6 @@
 {% extends "blog/base.html" %}
 {% load static %}
+{% load post_filters %}
 {% block content %}
 
 <div class="main-content-header">
@@ -70,7 +71,13 @@
             
             <!-- Contenido del post -->
             <div class="post-content mb-3 clickable-post" data-url="{% url 'post-detail' post.pk %}" style="cursor: pointer;">
-                <p class="mb-2">{{ post.post_content }}</p>
+                <p class="mb-2">{{ post.post_content|urlize_post }}</p>
+                
+                {% if post.image %}
+                    <div class="post-image mb-2">
+                        <img src="{{ post.image.url }}" alt="Post image" class="img-fluid rounded" style="max-width: 100%; max-height: 500px; object-fit: cover;">
+                    </div>
+                {% endif %}
                 
                 {% if post.post_tags.all %}
                     <div class="d-flex flex-wrap gap-2 mb-2">

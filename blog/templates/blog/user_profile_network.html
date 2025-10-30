@@ -3,8 +3,9 @@
 
 {% block content %}
 <div class="container mt-4">
+    <!-- Header del perfil -->
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-12">
             <div class="card mb-4">
                 <div class="card-body">
                     <h2>{{ profile_user.username }}</h2>
@@ -35,8 +36,12 @@
                     {% endif %}
                 </div>
             </div>
-            
-            <!-- Estadísticas -->
+        </div>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="row">
+        <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">Estadísticas</h4>
@@ -66,8 +71,36 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Posts del usuario -->
+        </div>
+    </div>
+    
+    <!-- Intereses del Usuario -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Intereses</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_interests %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for interest in user_interests %}
+                                <a href="{% url 'posts-by-interest' interest.name %}" class="badge bg-secondary text-decoration-none">
+                                    #{{ interest.name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">Sin intereses registrados.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Posts del usuario -->
+    <div class="row">
+        <div class="col-12">
             <h4 class="mb-3">Publicaciones</h4>
             {% if posts %}
                 {% for post in posts %}
@@ -150,28 +183,6 @@
             {% else %}
                 <p class="text-muted text-center">Este usuario no tiene publicaciones aún.</p>
             {% endif %}
-        </div>
-        
-        <div class="col-md-4">
-            <!-- Intereses del Usuario -->
-            <div class="card mb-3">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Intereses</h5>
-                </div>
-                <div class="card-body">
-                    {% if user_interests %}
-                        <div class="d-flex flex-wrap gap-2">
-                            {% for interest in user_interests %}
-                                <a href="{% url 'posts-by-interest' interest.name %}" class="badge bg-secondary text-decoration-none">
-                                    #{{ interest.name }}
-                                </a>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-muted">Sin intereses registrados.</p>
-                    {% endif %}
-                </div>
-            </div>
         </div>
     </div>
 </div>

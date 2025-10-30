@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view
 import re
 from urllib.parse import urlencode
 
-from .forms import NewCommentForm
+from .forms import NewCommentForm, PostForm
 from .models import Comment, Post, Type, PostTag
 from .serializers import GroupSerializer, PostSerializer, UserSerializer
 from .neo4j_services import Neo4jPostService, Neo4jInterestService, Neo4jUserService
@@ -195,7 +195,7 @@ class PostDetailView(LoginRequiredMixin, DetailView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['post_content']
+    form_class = PostForm
     template_name = 'blog/post_new.html'
     success_url = reverse_lazy('blog-home')
 
@@ -243,7 +243,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
-    fields = ['post_content']
+    form_class = PostForm
     template_name = 'blog/post_new.html'
     success_url = reverse_lazy('blog-home')
 
