@@ -50,6 +50,8 @@ urlpatterns = [
     path('interests/<str:interest_name>/', social_views.posts_by_interest, name='posts-by-interest'),
     path('analytics/', social_views.network_analytics, name='network-analytics'),
     path('profile/<str:username>/', social_views.user_profile_network, name='user-profile-network'),
+    path('network-graph/<str:username>/', social_views.network_graph_view, name='network-graph-view'),
+    path('api/network-graph/<str:username>/', social_views.network_graph_data, name='network-graph-data'),
     
     # APIs para widgets sociales
     path('api/friend-suggestions/', social_views.api_friend_suggestions, name='api-friend-suggestions'),

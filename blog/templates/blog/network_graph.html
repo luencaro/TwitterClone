@@ -1,0 +1,244 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Red de Conexiones - {{ profile_user.username }}</h2>
+                    <p class="text-muted">Visualización gráfica de seguidores y seguidos</p>
+                </div>
+                <a href="{% url 'user-profile-network' profile_user.username %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Volver al Perfil
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div style="width: 20px; height: 20px; background-color: #1da1f2; border-radius: 50%; margin-right: 10px;"></div>
+                                <span><strong>Usuario Principal</strong></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div style="width: 20px; height: 20px; background-color: #17bf63; border-radius: 50%; margin-right: 10px;"></div>
+                                <span><strong>Seguidores</strong> (te siguen)</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div style="width: 20px; height: 20px; background-color: #e1306c; border-radius: 50%; margin-right: 10px;"></div>
+                                <span><strong>Seguidos</strong> (sigues a)</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div id="network-stats">
+                                <strong>Cargando estadísticas...</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary" id="btn-zoom-in">
+                            <i class="fas fa-search-plus"></i> Acercar
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="btn-zoom-out">
+                            <i class="fas fa-search-minus"></i> Alejar
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="btn-fit">
+                            <i class="fas fa-expand"></i> Ajustar
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="btn-reload">
+                            <i class="fas fa-sync-alt"></i> Recargar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor del gráfico -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    <div id="network-container" style="height: 600px; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Incluir vis-network desde CDN -->
+<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<script>
+let network = null;
+
+// Cargar datos de la red
+function loadNetworkData() {
+    fetch('{% url "network-graph-data" profile_user.username %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error al cargar la red: ' + data.error);
+                return;
+            }
+            
+            // Actualizar estadísticas
+            document.getElementById('network-stats').innerHTML = `
+                <strong>${data.stats.total_nodes}</strong> nodos | 
+                <strong>${data.stats.followers}</strong> seguidores | 
+                <strong>${data.stats.following}</strong> seguidos
+            `;
+            
+            // Crear la visualización
+            createNetwork(data.nodes, data.edges);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los datos de la red');
+        });
+}
+
+function createNetwork(nodes, edges) {
+    const container = document.getElementById('network-container');
+    
+    // Crear dataset
+    const data = {
+        nodes: new vis.DataSet(nodes),
+        edges: new vis.DataSet(edges)
+    };
+    
+    // Opciones de configuración
+    const options = {
+        nodes: {
+            shape: 'dot',
+            scaling: {
+                min: 10,
+                max: 30
+            },
+            font: {
+                size: 12,
+                face: 'Arial'
+            },
+            borderWidth: 2,
+            shadow: true
+        },
+        edges: {
+            width: 2,
+            shadow: true,
+            smooth: {
+                type: 'continuous'
+            }
+        },
+        physics: {
+            stabilization: {
+                iterations: 200
+            },
+            barnesHut: {
+                gravitationalConstant: -8000,
+                centralGravity: 0.3,
+                springLength: 150,
+                springConstant: 0.04
+            }
+        },
+        interaction: {
+            hover: true,
+            tooltipDelay: 100,
+            navigationButtons: true,
+            keyboard: true
+        },
+        layout: {
+            improvedLayout: true,
+            hierarchical: false
+        }
+    };
+    
+    // Crear red
+    network = new vis.Network(container, data, options);
+    
+    // Eventos
+    network.on('click', function(params) {
+        if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            const node = nodes.find(n => n.id === nodeId);
+            if (node) {
+                // Obtener username del nodo
+                const username = node.label;
+                // Redirigir al perfil del usuario
+                window.location.href = `/profile/${username}/`;
+            }
+        }
+    });
+    
+    network.on('hoverNode', function() {
+        container.style.cursor = 'pointer';
+    });
+    
+    network.on('blurNode', function() {
+        container.style.cursor = 'default';
+    });
+}
+
+// Controles
+document.getElementById('btn-zoom-in').addEventListener('click', function() {
+    if (network) {
+        const scale = network.getScale();
+        network.moveTo({ scale: scale * 1.2 });
+    }
+});
+
+document.getElementById('btn-zoom-out').addEventListener('click', function() {
+    if (network) {
+        const scale = network.getScale();
+        network.moveTo({ scale: scale * 0.8 });
+    }
+});
+
+document.getElementById('btn-fit').addEventListener('click', function() {
+    if (network) {
+        network.fit();
+    }
+});
+
+document.getElementById('btn-reload').addEventListener('click', function() {
+    loadNetworkData();
+});
+
+// Cargar datos al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    loadNetworkData();
+});
+</script>
+
+<style>
+#network-container {
+    border: 1px solid #ddd;
+    background-color: #fafafa;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock content %}

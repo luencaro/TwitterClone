@@ -15,25 +15,30 @@
                     <p class="text-muted">Miembro desde {{ profile_user.date_joined|date:"F Y" }}</p>
                     
                     <!-- Acciones -->
-                    {% if user.id != profile_user.id %}
                     <div class="mt-3">
-                        {% if is_following %}
-                            <form method="POST" action="{% url 'unfollow-user' profile_user.id %}" style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-secondary rounded-pill">
-                                    <i class="fas fa-user-check"></i> Siguiendo
-                                </button>
-                            </form>
-                        {% else %}
-                            <form method="POST" action="{% url 'follow-user' profile_user.id %}" style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary rounded-pill">
-                                    <i class="fas fa-user-plus"></i> Seguir
-                                </button>
-                            </form>
+                        {% if user.id != profile_user.id %}
+                            {% if is_following %}
+                                <form method="POST" action="{% url 'unfollow-user' profile_user.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-secondary rounded-pill">
+                                        <i class="fas fa-user-check"></i> Siguiendo
+                                    </button>
+                                </form>
+                            {% else %}
+                                <form method="POST" action="{% url 'follow-user' profile_user.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary rounded-pill">
+                                        <i class="fas fa-user-plus"></i> Seguir
+                                    </button>
+                                </form>
+                            {% endif %}
                         {% endif %}
+                        
+                        <!-- Botón para visualizar red de conexiones -->
+                        <a href="{% url 'network-graph-view' profile_user.username %}" class="btn btn-info rounded-pill">
+                            <i class="fas fa-project-diagram"></i> Ver Red de Conexiones
+                        </a>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>

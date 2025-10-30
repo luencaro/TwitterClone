@@ -464,3 +464,99 @@ def api_unfollow_user(request, user_id):
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False}, status=400)
 
+
+@login_required
+def network_graph_view(request, username):
+    """Vista para visualización gráfica de la red de conexiones de un usuario"""
+    user = get_object_or_404(User, username=username)
+    
+    context = {
+        'profile_user': user,
+        'title': f'Red de Conexiones - {user.username}'
+    }
+    return render(request, 'blog/network_graph.html', context)
+
+
+@login_required
+def network_graph_data(request, username):
+    """API que devuelve datos de la red en formato JSON para la visualización"""
+    user = get_object_or_404(User, username=username)
+    user_service = Neo4jUserService()
+    
+    try:
+        # Obtener seguidores y seguidos del usuario
+        followers = user_service.get_followers(user.id)
+        following = user_service.get_following(user.id)
+        
+        # Crear conjunto de nodos (usuarios únicos)
+        nodes = {}
+        edges = []
+        
+        # Agregar el usuario principal
+        nodes[user.id] = {
+            'id': user.id,
+            'label': user.username,
+            'level': 0,  # Usuario central
+            'color': '#1da1f2',  # Color azul Twitter para el usuario principal
+            'size': 30,
+            'font': {'size': 16, 'color': '#ffffff', 'face': 'Arial'}
+        }
+        
+        # Agregar seguidores
+        for follower_data in followers:
+            follower_user = User.objects.get(id=follower_data.user_id)
+            if follower_user.id not in nodes:
+                nodes[follower_user.id] = {
+                    'id': follower_user.id,
+                    'label': follower_user.username,
+                    'level': 1,
+                    'color': '#17bf63',  # Verde para seguidores
+                    'size': 20,
+                    'font': {'size': 12}
+                }
+            # Crear arista: follower -> usuario principal
+            edges.append({
+                'from': follower_user.id,
+                'to': user.id,
+                'arrows': 'to',
+                'color': {'color': '#17bf63', 'opacity': 0.6}
+            })
+        
+        # Agregar seguidos
+        for following_data in following:
+            followed_user = User.objects.get(id=following_data.user_id)
+            if followed_user.id not in nodes:
+                nodes[followed_user.id] = {
+                    'id': followed_user.id,
+                    'label': followed_user.username,
+                    'level': 1,
+                    'color': '#e1306c',  # Rosa para seguidos
+                    'size': 20,
+                    'font': {'size': 12}
+                }
+            # Crear arista: usuario principal -> seguido
+            edges.append({
+                'from': user.id,
+                'to': followed_user.id,
+                'arrows': 'to',
+                'color': {'color': '#e1306c', 'opacity': 0.6}
+            })
+        
+        # Convertir nodos a lista
+        nodes_list = list(nodes.values())
+        
+        return JsonResponse({
+            'nodes': nodes_list,
+            'edges': edges,
+            'stats': {
+                'followers': len(followers),
+                'following': len(following),
+                'total_nodes': len(nodes_list)
+            }
+        })
+        
+    except Exception as e:
+        print(f"Error en network_graph_data: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)
