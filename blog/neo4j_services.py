@@ -348,16 +348,49 @@ class Neo4jInterestService:
     @staticmethod
     def add_user_interest(user_id: int, interest_name: str):
         """Agrega un interés a un usuario"""
-        user = UserNode.nodes.get_or_none(user_id=user_id)
-        interest = InterestNode.nodes.get_or_none(name=interest_name.lower())
-        
-        if not interest:
-            interest = InterestNode(name=interest_name.lower()).save()
-        
-        if user and interest:
-            user.interests.connect(interest)
-            return True
-        return False
+        try:
+            user = UserNode.nodes.get_or_none(user_id=user_id)
+            
+            # Si el usuario no existe en Neo4j, intentar crearlo desde Django
+            if not user:
+                from django.contrib.auth.models import User
+                try:
+                    django_user = User.objects.get(id=user_id)
+                    # Crear usuario en Neo4j
+                    user = Neo4jUserService.create_or_update_user(
+                        user_id=django_user.id,
+                        username=django_user.username,
+                        email=django_user.email,
+                        first_name=django_user.first_name,
+                        last_name=django_user.last_name,
+                        bio=getattr(django_user.profile, 'bio', '') if hasattr(django_user, 'profile') else ''
+                    )
+                    print(f"✅ Usuario {django_user.username} creado automáticamente en Neo4j")
+                except User.DoesNotExist:
+                    print(f"❌ Usuario con ID {user_id} no existe en Django")
+                    return False
+            
+            interest = InterestNode.nodes.get_or_none(name=interest_name.lower())
+            
+            if not interest:
+                interest = InterestNode(name=interest_name.lower()).save()
+                print(f"✅ Interés '{interest_name}' creado en Neo4j")
+            
+            if user and interest:
+                # Verificar si ya existe la relación
+                if not user.interests.is_connected(interest):
+                    user.interests.connect(interest)
+                    print(f"✅ Interés '{interest_name}' agregado al usuario {user.username}")
+                    return True
+                else:
+                    print(f"⚠️ El usuario {user.username} ya tiene el interés '{interest_name}'")
+                    return True  # Retornar True porque técnicamente el interés está agregado
+            return False
+        except Exception as e:
+            print(f"❌ Error agregando interés: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return False
     
     @staticmethod
     def remove_user_interest(user_id: int, interest_name: str):
