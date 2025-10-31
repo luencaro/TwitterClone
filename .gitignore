@@ -1,4 +1,43 @@
+# Entornos virtuales de Python
 /env
-.vscode
+venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+
+# Base de datos
 db.sqlite3
+*.sqlite3
+*.db
+
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# Variables de entorno (CREDENCIALES SENSIBLES - NO SUBIR)
+.env
+.env.backup
+.env.local
+.env.*.local
+
+# Archivos de medios subidos por usuarios
+media/
+
+# Archivos estáticos recolectados
+staticfiles/
+static_root/
+
+# Logs
+*.log
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo

@@ -47,7 +47,7 @@ else
         -d \
         -v $HOME/neo4j/data:/data \
         -v $HOME/neo4j/logs:/logs \
-        -e NEO4J_AUTH=neo4j/password123 \
+        -e NEO4J_AUTH=neo4j/NuevaNeo4jPass2024!Segura \
         neo4j:5.14
     
     echo -e "${YELLOW}Esperando que Neo4j inicie (30 segundos)...${NC}"
