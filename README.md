@@ -63,17 +63,6 @@ python manage.py runserver
 
 **Visita:** http://localhost:8000
 
-## 📚 Documentación
-
-| Archivo | Descripción |
-|---------|-------------|
-| [QUICKSTART.md](QUICKSTART.md) | Guía de inicio rápido (10 minutos) |
-| [NEO4J_README.md](NEO4J_README.md) | Documentación completa del proyecto |
-| [DATA_MODEL.md](DATA_MODEL.md) | Modelo de datos y diagramas |
-| [CYPHER_QUERIES.md](CYPHER_QUERIES.md) | 50+ queries útiles de Cypher |
-| [DEPLOYMENT.md](DEPLOYMENT.md) | Guía de despliegue en producción |
-| [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) | Resumen ejecutivo |
-
 ## 🚀 Tecnologías Utilizadas
 
 | Tecnología | Versión | Propósito |
@@ -238,35 +227,9 @@ La aplicación expone endpoints básicos mediante Django REST Framework:
 
 Para interactuar con la API, autentícate mediante la sesión de Django o usa tokens si añades un backend adicional.
 
-## Gestión de datos de ejemplo
 
-Existe un comando personalizado para poblar la base de datos con posts de prueba:
-
-```powershell
-python manage.py create_dummy_data
-```
-
-Puedes modificar el comando en `blog/management/commands/create_dummy_data.py` para ajustar la cantidad de entradas.
-
-## Ejecución de pruebas
-
-La suite de tests básicos se ejecuta con:
-
-```powershell
-python manage.py test
-```
-
-El comando crea una base de datos temporal, verifica modelos y vistas fundamentales, y luego limpia los datos.
-
-## Buenas prácticas y seguridad
-
-- Mantén actualizado el archivo `requirements.txt` y aplica parches de seguridad.
-- Si despliegas en producción, configura variables de entorno (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`) y ejecuta `python manage.py collectstatic`.
-- Usa HTTPS en producción y un backend de correo real para la recuperación de contraseñas.
-- Revisa los permisos de archivos subidos en `media/` y configura un almacenamiento apropiado (S3, Azure Blob, etc.).
 
 ## 🗓️ Fecha del Laboratorio
-
-26 de septiembre de 2025
+31 de Octubre de 2025
 
 ---
